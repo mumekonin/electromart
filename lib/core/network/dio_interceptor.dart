@@ -1,18 +1,20 @@
 import 'package:dio/dio.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 
+import '../storage/session_storage.dart';
+
 /// Custom Dio interceptor for ElectroMart.
 ///
 /// Why this class exists:
 /// - Runs before / after every HTTP call without repeating code
 /// - Checks internet availability before sending a request
-/// - Ready place to attach an auth token later (login session)
-///
-/// Flow:
-/// 1. onRequest  → check connection (and later add token)
-/// 2. onResponse → pass response through (no change for now)
-/// 3. onError    → pass error through (ApiService maps it)
+/// - Attaches the saved JWT token when the user is logged in
 class AppInterceptor extends Interceptor {
+  AppInterceptor({this._sessionStorage});
+
+  /// Optional because Dio may be created before a session exists.
+  final SessionStorage? _sessionStorage;
+
   @override
   Future<void> onRequest(
     RequestOptions options,
@@ -31,11 +33,11 @@ class AppInterceptor extends Interceptor {
       );
     }
 
-    // Later (auth module):
-    // final token = ... from SharedPreferences;
-    // if (token != null) {
-    //   options.headers['Authorization'] = 'Bearer $token';
-    // }
+    // Attach JWT from local session when available.
+    final token = _sessionStorage?.getToken();
+    if (token != null && token.isNotEmpty) {
+      options.headers['Authorization'] = 'Bearer $token';
+    }
 
     handler.next(options);
   }

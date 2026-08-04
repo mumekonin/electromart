@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../storage/storage_provider.dart';
 import 'api_service.dart';
 import 'dio_client.dart';
 
@@ -9,13 +10,9 @@ import 'dio_client.dart';
 /// Why this provider exists:
 /// - Riverpod can inject Dio anywhere without creating new clients
 /// - Guarantees we reuse one configured Dio (base URL, interceptors, logger)
-///
-/// Usage later:
-/// ```dart
-/// final dio = ref.watch(dioProvider);
-/// ```
 final dioProvider = Provider<Dio>((ref) {
-  return DioClient().dio;
+  final sessionStorage = ref.watch(sessionStorageProvider);
+  return DioClient(sessionStorage: sessionStorage).dio;
 });
 
 /// Provides the shared [ApiService].

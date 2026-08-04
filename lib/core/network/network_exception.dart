@@ -58,7 +58,7 @@ class NetworkException implements Exception {
       case 400:
         return 'Bad request. Please check your input.';
       case 401:
-        return 'You are not authorized. Please log in again.';
+        return 'Wrong username or password.';
       case 403:
         return 'You do not have permission to do that.';
       case 404:

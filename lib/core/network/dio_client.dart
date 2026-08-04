@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
+import '../storage/session_storage.dart';
 import 'api_constants.dart';
 import 'dio_interceptor.dart';
 
@@ -12,7 +13,7 @@ import 'dio_interceptor.dart';
 /// - Central place for base URL, timeouts, headers, and interceptors
 /// - Keeps setup out of widgets and feature code
 class DioClient {
-  DioClient() {
+  DioClient({SessionStorage? sessionStorage}) {
     _dio = Dio(
       BaseOptions(
         baseUrl: ApiConstants.baseUrl,
@@ -25,11 +26,10 @@ class DioClient {
       ),
     );
 
-    // App logic interceptor (offline check, future auth token).
-    _dio.interceptors.add(AppInterceptor());
+    // App logic interceptor (offline check + auth token).
+    _dio.interceptors.add(AppInterceptor(sessionStorage: sessionStorage));
 
     // Pretty logger: prints clean request/response logs while debugging.
-    // Disabled in release builds so we do not spam device logs.
     if (kDebugMode) {
       _dio.interceptors.add(
         PrettyDioLogger(
