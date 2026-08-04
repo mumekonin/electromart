@@ -5,7 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../core/storage/storage_provider.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
-import '../../features/home/presentation/pages/home_page.dart';
+import '../../features/product/presentation/pages/home_page.dart';
+import '../../features/product/presentation/pages/product_details_placeholder_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
 
 /// Route path constants.
@@ -18,6 +19,12 @@ class AppRoutes {
   static const String splash = '/';
   static const String login = '/login';
   static const String home = '/home';
+
+  /// Path pattern used by GoRouter for product details.
+  static const String productDetails = '/product/:id';
+
+  /// Builds a concrete details path for a product id.
+  static String productDetailsPath(int id) => '/product/$id';
 }
 
 /// Listens to auth changes so GoRouter can re-run [redirect].
@@ -86,6 +93,15 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.home,
         name: 'home',
         builder: (context, state) => const HomePage(),
+      ),
+      GoRoute(
+        path: AppRoutes.productDetails,
+        name: 'productDetails',
+        builder: (context, state) {
+          final idParam = state.pathParameters['id'];
+          final productId = int.tryParse(idParam ?? '') ?? 0;
+          return ProductDetailsPlaceholderPage(productId: productId);
+        },
       ),
     ],
   );
