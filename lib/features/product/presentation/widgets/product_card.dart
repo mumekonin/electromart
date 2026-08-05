@@ -14,7 +14,7 @@ import '../../domain/entities/product.dart';
 /// Why this widget exists:
 /// - Keeps image / title / price / category UI reusable
 /// - Home page stays focused on layout and states
-/// - Tap opens a placeholder Product Details route
+/// - Tap opens Product Details via GoRouter (`/product/:id`)
 class ProductCard extends StatelessWidget {
   const ProductCard({
     super.key,
@@ -33,7 +33,6 @@ class ProductCard extends StatelessWidget {
       child: InkWell(
         borderRadius: BorderRadius.circular(AppSpacing.radius),
         onTap: () {
-          // Placeholder details screen — full details come in a later module.
           context.push(AppRoutes.productDetailsPath(product.id));
         },
         child: Ink(

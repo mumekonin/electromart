@@ -9,4 +9,7 @@ import '../entities/product.dart';
 abstract class ProductRepository {
   /// Fetches every product from the remote API.
   Future<List<Product>> getAllProducts();
+
+  /// Fetches one product by its Fake Store id.
+  Future<Product> getProductById(int id);
 }

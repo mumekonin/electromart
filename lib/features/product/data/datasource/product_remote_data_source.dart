@@ -43,4 +43,34 @@ class ProductRemoteDataSource {
       );
     }
   }
+
+  /// GET /products/{id}
+  Future<ProductModel> getProductById(int id) async {
+    try {
+      final response = await _apiService.get(ApiConstants.productById(id));
+      final data = response.data;
+
+      // Fake Store returns one JSON object for a single product.
+      if (data is! Map<String, dynamic>) {
+        throw const NetworkException(
+          'Product not found.',
+          statusCode: 404,
+        );
+      }
+
+      return ProductModel.fromJson(data);
+    } on NetworkException catch (exception) {
+      if (exception.statusCode == 404) {
+        throw const NetworkException(
+          'Product not found.',
+          statusCode: 404,
+        );
+      }
+      rethrow;
+    } catch (_) {
+      throw const NetworkException(
+        'Something went wrong while loading this product.',
+      );
+    }
+  }
 }

@@ -6,7 +6,7 @@ import '../../core/storage/storage_provider.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 import '../../features/product/presentation/pages/home_page.dart';
-import '../../features/product/presentation/pages/product_details_placeholder_page.dart';
+import '../../features/product/presentation/pages/product_details_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
 
 /// Route path constants.
@@ -100,7 +100,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final idParam = state.pathParameters['id'];
           final productId = int.tryParse(idParam ?? '') ?? 0;
-          return ProductDetailsPlaceholderPage(productId: productId);
+          return ProductDetailsPage(productId: productId);
         },
       ),
     ],

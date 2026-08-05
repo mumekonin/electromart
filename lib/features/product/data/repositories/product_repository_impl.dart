@@ -20,6 +20,12 @@ class ProductRepositoryImpl implements ProductRepository {
     return models.map(_mapToEntity).toList();
   }
 
+  @override
+  Future<Product> getProductById(int id) async {
+    final model = await _remoteDataSource.getProductById(id);
+    return _mapToEntity(model);
+  }
+
   /// Converts one API model into a domain entity.
   Product _mapToEntity(ProductModel model) {
     return Product(
