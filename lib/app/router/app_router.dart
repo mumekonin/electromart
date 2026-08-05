@@ -20,6 +20,8 @@ class AppRoutes {
   static const String splash = '/';
   static const String login = '/login';
   static const String home = '/home';
+
+  /// Shopping cart page (opened from Home cart icon).
   static const String cart = '/cart';
 
   /// Path pattern used by GoRouter for product details.

@@ -33,6 +33,8 @@ class HomePage extends ConsumerWidget {
     final selectedCategory = ref.watch(selectedCategoryProvider);
     final hasSearchQuery = searchQuery.trim().isNotEmpty;
 
+    // Integration: cart badge on Product Listing (Home).
+    // Shows how many units are in the cart; tap opens Cart page.
     final cartTotalItems = ref.watch(cartTotalItemsProvider);
 
     return Scaffold(

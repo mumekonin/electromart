@@ -71,7 +71,9 @@ final clearCartUseCaseProvider = Provider<ClearCartUseCase>((ref) {
 class CartNotifier extends AsyncNotifier<Cart> {
   /// Called the first time something watches [cartProvider].
   ///
-  /// Loads the cart from SharedPreferences so items restore on app start.
+  /// Integration: cart restore on app start.
+  /// [App] watches [cartProvider], so this runs early and reloads
+  /// the JSON cart saved in SharedPreferences.
   @override
   Future<Cart> build() {
     return ref.read(getCartUseCaseProvider)();

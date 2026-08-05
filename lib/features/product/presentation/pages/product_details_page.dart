@@ -113,6 +113,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
         },
         data: (product) => _ProductDetailsBody(
           product: product,
+          // Integration: Add To Cart on Product Details.
+          // Saves a CartItem snapshot via cartProvider (persists to SharedPreferences).
           onAddToCart: () async {
             final messenger = ScaffoldMessenger.of(context);
 
