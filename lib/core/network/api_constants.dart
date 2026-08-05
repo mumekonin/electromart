@@ -35,6 +35,9 @@ class ApiConstants {
   static String productById(int id) => '/products/$id';
 
   /// GET products that belong to one category.
+  ///
+  /// Category names may contain spaces (example: "men's clothing"),
+  /// so we encode them for a safe URL path.
   static String productsByCategory(String category) =>
-      '/products/category/$category';
+      '/products/category/${Uri.encodeComponent(category)}';
 }

@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/network/dio_provider.dart';
 import '../../../../core/network/network_exception.dart';
+import '../../../category/presentation/providers/category_provider.dart';
 import '../../data/datasource/product_remote_data_source.dart';
 import '../../data/repositories/product_repository_impl.dart';
 import '../../domain/entities/product.dart';
@@ -30,23 +31,32 @@ final getAllProductsUseCaseProvider = Provider<GetAllProductsUseCase>((ref) {
 ///
 /// Why this class exists:
 /// - One provider for products (loading / success / error)
-/// - Loads products when Home opens
-/// - Exposes [refresh] for pull-to-refresh and Retry
+/// - Watches [selectedCategoryProvider]
+/// - Reloads automatically when the user changes category chips
 class ProductNotifier extends AsyncNotifier<List<Product>> {
   @override
   Future<List<Product>> build() {
-    // Called automatically the first time Home watches this provider.
-    return ref.read(getAllProductsUseCaseProvider)();
+    // When the selected category changes, Riverpod re-runs build().
+    final selectedCategory = ref.watch(selectedCategoryProvider);
+    return _loadProducts(selectedCategory?.name);
   }
 
-  /// Reloads products from the API.
-  ///
-  /// We do not force [AsyncLoading] here so pull-to-refresh can keep
-  /// showing the old list while the new data loads.
+  /// Reloads products for the current category (or all products).
   Future<void> refresh() async {
+    final selectedCategory = ref.read(selectedCategoryProvider);
     state = await AsyncValue.guard(() {
-      return ref.read(getAllProductsUseCaseProvider)();
+      return _loadProducts(selectedCategory?.name);
     });
+  }
+
+  /// "All" → get every product.
+  /// Named category → get products for that category only.
+  Future<List<Product>> _loadProducts(String? categoryName) {
+    if (categoryName == null) {
+      return ref.read(getAllProductsUseCaseProvider)();
+    }
+
+    return ref.read(getProductsByCategoryUseCaseProvider)(categoryName);
   }
 
   /// Friendly error text for the UI.

@@ -14,9 +14,13 @@ class ProductsEmptyView extends StatelessWidget {
   const ProductsEmptyView({
     super.key,
     required this.onRefresh,
+    this.message = 'There are no products to show right now.',
   });
 
   final Future<void> Function() onRefresh;
+
+  /// Optional custom message (example: empty category filter).
+  final String message;
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +45,7 @@ class ProductsEmptyView extends StatelessWidget {
             ),
             Gap(AppSpacing.sm),
             Text(
-              'There are no products to show right now.',
+              message,
               style: textTheme.bodyMedium?.copyWith(
                 color: AppColors.textSecondary,
               ),

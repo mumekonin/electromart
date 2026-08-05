@@ -1,7 +1,7 @@
 import '../../domain/entities/product.dart';
 import '../../domain/repositories/product_repository.dart';
 import '../datasource/product_remote_data_source.dart';
-import '../models/product_model.dart';
+import '../mappers/product_mapper.dart';
 
 /// Concrete [ProductRepository] using the remote API.
 ///
@@ -17,28 +17,12 @@ class ProductRepositoryImpl implements ProductRepository {
   @override
   Future<List<Product>> getAllProducts() async {
     final models = await _remoteDataSource.getAllProducts();
-    return models.map(_mapToEntity).toList();
+    return models.map(ProductMapper.toEntity).toList();
   }
 
   @override
   Future<Product> getProductById(int id) async {
     final model = await _remoteDataSource.getProductById(id);
-    return _mapToEntity(model);
-  }
-
-  /// Converts one API model into a domain entity.
-  Product _mapToEntity(ProductModel model) {
-    return Product(
-      id: model.id,
-      title: model.title,
-      price: model.price,
-      description: model.description,
-      category: model.category,
-      image: model.image,
-      rating: ProductRating(
-        rate: model.rating.rate,
-        count: model.rating.count,
-      ),
-    );
+    return ProductMapper.toEntity(model);
   }
 }
