@@ -12,11 +12,7 @@ import '../models/login_request_model.dart';
 /// - Coordinates remote login and saving the JWT locally
 /// - Presentation never calls Dio or SharedPreferences here directly
 class AuthRepositoryImpl implements AuthRepository {
-  AuthRepositoryImpl({
-    required AuthRemoteDataSource remoteDataSource,
-    required SessionStorage sessionStorage,
-  })  : _remoteDataSource = remoteDataSource,
-        _sessionStorage = sessionStorage;
+  AuthRepositoryImpl(this._remoteDataSource, this._sessionStorage);
 
   final AuthRemoteDataSource _remoteDataSource;
   final SessionStorage _sessionStorage;

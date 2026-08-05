@@ -17,7 +17,7 @@ final productRemoteDataSourceProvider =
 /// Provides the product repository implementation.
 final productRepositoryProvider = Provider<ProductRepository>((ref) {
   return ProductRepositoryImpl(
-    remoteDataSource: ref.watch(productRemoteDataSourceProvider),
+    ref.watch(productRemoteDataSourceProvider),
   );
 });
 

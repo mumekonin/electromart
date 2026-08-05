@@ -17,8 +17,8 @@ final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>((ref) {
 /// Provides the auth repository implementation.
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return AuthRepositoryImpl(
-    remoteDataSource: ref.watch(authRemoteDataSourceProvider),
-    sessionStorage: ref.watch(sessionStorageProvider),
+    ref.watch(authRemoteDataSourceProvider),
+    ref.watch(sessionStorageProvider),
   );
 });
 

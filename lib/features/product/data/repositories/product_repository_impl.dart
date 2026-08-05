@@ -10,9 +10,7 @@ import '../models/product_model.dart';
 /// - Maps [ProductModel] (data) → [Product] (domain)
 /// - Presentation never calls Dio here directly
 class ProductRepositoryImpl implements ProductRepository {
-  ProductRepositoryImpl({
-    required ProductRemoteDataSource remoteDataSource,
-  }) : _remoteDataSource = remoteDataSource;
+  ProductRepositoryImpl(this._remoteDataSource);
 
   final ProductRemoteDataSource _remoteDataSource;
 
