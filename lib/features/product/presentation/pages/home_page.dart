@@ -5,25 +5,30 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../category/presentation/providers/category_provider.dart';
 import '../../../category/presentation/widgets/category_chip_bar.dart';
+import '../../../search/presentation/providers/search_provider.dart';
+import '../../../search/presentation/widgets/search_bar_widget.dart';
+import '../../../search/presentation/widgets/search_empty_view.dart';
 import '../../domain/entities/product.dart';
 import '../providers/product_provider.dart';
 import '../widgets/product_card.dart';
 import '../widgets/products_empty_view.dart';
 import '../widgets/products_error_view.dart';
 
-/// Home screen: category chips + product grid.
+/// Home screen: search + category chips + product grid.
 ///
 /// Why this page exists:
 /// - Main shopping entry after login
-/// - Category chips filter the grid (All or one API category)
-/// - Watches [productProvider] for loading / data / error
+/// - Search filters products already loaded for the selected category
+/// - Watches loading / error from [productProvider] (not from search)
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final productsState = ref.watch(productProvider);
+    final productsState = ref.watch(filteredProductsProvider);
+    final searchQuery = ref.watch(searchQueryProvider);
     final selectedCategory = ref.watch(selectedCategoryProvider);
+    final hasSearchQuery = searchQuery.trim().isNotEmpty;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -33,7 +38,10 @@ class HomePage extends ConsumerWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Horizontal category filters from Fake Store API.
+          // Local search (no API calls on each keystroke).
+          const SearchBarWidget(),
+
+          // Electronics department chips.
           const CategoryChipBar(),
           Divider(height: 1, color: AppColors.border),
 
@@ -50,6 +58,10 @@ class HomePage extends ConsumerWidget {
                 );
               },
               data: (products) {
+                if (products.isEmpty && hasSearchQuery) {
+                  return const SearchEmptyView();
+                }
+
                 if (products.isEmpty) {
                   final categoryLabel =
                       selectedCategory?.displayName ?? 'All Products';
@@ -90,7 +102,6 @@ class _ProductsGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        // More columns on wider screens (tablet / landscape).
         final crossAxisCount = constraints.maxWidth >= 600 ? 3 : 2;
 
         return RefreshIndicator(
@@ -103,7 +114,6 @@ class _ProductsGrid extends StatelessWidget {
               crossAxisCount: crossAxisCount,
               crossAxisSpacing: AppSpacing.md,
               mainAxisSpacing: AppSpacing.md,
-              // Taller cards so title + price fit comfortably.
               childAspectRatio: 0.68,
             ),
             itemCount: products.length,
