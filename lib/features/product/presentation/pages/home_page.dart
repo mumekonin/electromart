@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/app_router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../cart/presentation/providers/cart_provider.dart';
 import '../../../category/presentation/providers/category_provider.dart';
 import '../../../category/presentation/widgets/category_chip_bar.dart';
 import '../../../search/presentation/providers/search_provider.dart';
@@ -30,10 +33,23 @@ class HomePage extends ConsumerWidget {
     final selectedCategory = ref.watch(selectedCategoryProvider);
     final hasSearchQuery = searchQuery.trim().isNotEmpty;
 
+    final cartTotalItems = ref.watch(cartTotalItemsProvider);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text('ElectroMart'),
+        actions: [
+          IconButton(
+            tooltip: 'Cart',
+            onPressed: () => context.push(AppRoutes.cart),
+            icon: Badge(
+              isLabelVisible: cartTotalItems > 0,
+              label: Text('$cartTotalItems'),
+              child: const Icon(Icons.shopping_cart_outlined),
+            ),
+          ),
+        ],
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

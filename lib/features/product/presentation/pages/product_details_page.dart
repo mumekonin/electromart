@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../cart/domain/entities/cart_item.dart';
+import '../../../cart/presentation/providers/cart_provider.dart';
 import '../../domain/entities/product.dart';
 import '../providers/product_details_provider.dart';
 import '../widgets/action_buttons.dart';
@@ -111,7 +113,31 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
         },
         data: (product) => _ProductDetailsBody(
           product: product,
-          onAddToCart: () => _showComingSoon('Cart'),
+          onAddToCart: () async {
+            final messenger = ScaffoldMessenger.of(context);
+
+            await ref.read(cartProvider.notifier).addToCart(
+                  CartItem(
+                    productId: product.id,
+                    title: product.title,
+                    price: product.price,
+                    image: product.image,
+                    quantity: 1,
+                  ),
+                );
+
+            if (!mounted) return;
+
+            messenger
+              ..hideCurrentSnackBar()
+              ..showSnackBar(
+                const SnackBar(
+                  content: Text('Added to cart'),
+                  behavior: SnackBarBehavior.floating,
+                  backgroundColor: AppColors.success,
+                ),
+              );
+          },
           onBuyNow: () => _showComingSoon('Checkout'),
         ),
       ),

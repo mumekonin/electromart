@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/storage/storage_provider.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
+import '../../features/cart/presentation/pages/cart_page.dart';
 import '../../features/product/presentation/pages/home_page.dart';
 import '../../features/product/presentation/pages/product_details_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
@@ -19,6 +20,7 @@ class AppRoutes {
   static const String splash = '/';
   static const String login = '/login';
   static const String home = '/home';
+  static const String cart = '/cart';
 
   /// Path pattern used by GoRouter for product details.
   static const String productDetails = '/product/:id';
@@ -93,6 +95,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.home,
         name: 'home',
         builder: (context, state) => const HomePage(),
+      ),
+      GoRoute(
+        path: AppRoutes.cart,
+        name: 'cart',
+        builder: (context, state) => const CartPage(),
       ),
       GoRoute(
         path: AppRoutes.productDetails,
