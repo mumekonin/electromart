@@ -1,11 +1,11 @@
 import '../entities/category.dart';
 import '../repositories/category_repository.dart';
 
-/// Runs the "get all categories" business action.
+/// Runs the "get electronics departments" business action.
 ///
 /// Why this class exists:
-/// - Presentation asks for categories through this use case
-/// - Keeps Home free of repository / networking details
+/// - Presentation asks for category chips through this use case
+/// - Keeps Home free of repository details
 class GetCategoriesUseCase {
   GetCategoriesUseCase(this._repository);
 

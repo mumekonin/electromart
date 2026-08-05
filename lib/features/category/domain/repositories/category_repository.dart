@@ -5,11 +5,11 @@ import '../entities/category.dart';
 ///
 /// Why this class exists:
 /// - Domain defines WHAT category browsing can do
-/// - Data layer defines HOW (API calls + mapping)
+/// - Data layer defines HOW (API products + keyword matching)
 abstract class CategoryRepository {
-  /// Fetches every category name from Fake Store.
+  /// Returns ElectroMart electronics departments.
   Future<List<Category>> getCategories();
 
-  /// Fetches products that belong to [categoryName].
+  /// Returns electronics products that match one department.
   Future<List<Product>> getProductsByCategory(String categoryName);
 }

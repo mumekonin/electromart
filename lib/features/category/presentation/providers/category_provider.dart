@@ -31,7 +31,7 @@ final getProductsByCategoryUseCaseProvider =
   return GetProductsByCategoryUseCase(ref.watch(categoryRepositoryProvider));
 });
 
-/// Loads available categories from Fake Store.
+/// Loads ElectroMart electronics departments for the chip row.
 ///
 /// Why this class exists:
 /// - One provider for the category list only
@@ -58,7 +58,7 @@ class CategoriesNotifier extends AsyncNotifier<List<Category>> {
   }
 }
 
-/// Provider for the list of API categories.
+/// Provider for electronics department chips.
 final categoriesProvider =
     AsyncNotifierProvider<CategoriesNotifier, List<Category>>(
   CategoriesNotifier.new,
@@ -68,18 +68,18 @@ final categoriesProvider =
 ///
 /// Why this class exists:
 /// - Separate from "load categories" (one responsibility)
-/// - `null` means the user selected **All** products
+/// - `null` means the user selected **All** electronics products
 /// - Product listing watches this and reloads automatically
 class SelectedCategoryNotifier extends Notifier<Category?> {
   @override
   Category? build() => null;
 
-  /// Select the "All" chip → show every product.
+  /// Select the "All" chip → show every electronics product.
   void selectAll() {
     state = null;
   }
 
-  /// Select one API category → show filtered products.
+  /// Select one electronics department → filter products.
   void select(Category category) {
     state = category;
   }

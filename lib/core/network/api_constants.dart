@@ -31,13 +31,23 @@ class ApiConstants {
   /// GET all category names.
   static const String categories = '/products/categories';
 
+  /// ElectroMart is an electronics store.
+  ///
+  /// Fake Store also returns clothing / jewelry — we ignore those
+  /// and only keep this category name from the API.
+  static const String electronicsCategory = 'electronics';
+
+  /// Returns true when [category] is the electronics category.
+  static bool isElectronicsCategory(String category) {
+    return category.toLowerCase() == electronicsCategory;
+  }
+
   /// GET / PUT / DELETE one product by id.
   static String productById(int id) => '/products/$id';
 
   /// GET products that belong to one category.
   ///
-  /// Category names may contain spaces (example: "men's clothing"),
-  /// so we encode them for a safe URL path.
+  /// Category names are encoded for a safe URL path.
   static String productsByCategory(String category) =>
       '/products/category/${Uri.encodeComponent(category)}';
 }

@@ -1,23 +1,37 @@
-/// Domain entity for a product category.
+import '../../../product/domain/entities/product.dart';
+
+/// One electronics department in ElectroMart.
 ///
 /// Why this class exists:
-/// - Fake Store returns plain strings like "electronics"
-/// - Wrapping them in an entity keeps UI code clearer
-/// - [displayName] formats the label for chips (no hardcoding)
+/// - Fake Store only has a single "electronics" category
+/// - ElectroMart needs store departments like Laptops, TVs, AirPods
+/// - [keywords] help match API products into the right chip
 class Category {
-  const Category({required this.name});
+  const Category({
+    required this.name,
+    required this.displayName,
+    required this.keywords,
+  });
 
-  /// Exact category value from the API (used in requests).
+  /// Internal id used by providers (example: "laptops").
   final String name;
 
-  /// Nice label for the UI (example: "men's clothing" → "Men's Clothing").
-  String get displayName {
-    if (name.isEmpty) return name;
+  /// Label shown on the category chip.
+  final String displayName;
 
-    return name.split(' ').map((word) {
-      if (word.isEmpty) return word;
-      return '${word[0].toUpperCase()}${word.substring(1)}';
-    }).join(' ');
+  /// Words we look for in a product title / description.
+  final List<String> keywords;
+
+  /// Returns true when this product belongs in this department.
+  bool matchesProduct(Product product) {
+    final text = '${product.title} ${product.description}'.toLowerCase();
+
+    for (final keyword in keywords) {
+      if (text.contains(keyword.toLowerCase())) {
+        return true;
+      }
+    }
+    return false;
   }
 
   @override

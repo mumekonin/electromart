@@ -8,10 +8,10 @@ import '../../../../app/theme/app_spacing.dart';
 import '../providers/category_provider.dart';
 import 'category_chip.dart';
 
-/// Horizontal category filter row shown above the product grid.
+/// Horizontal electronics department chips above the product grid.
 ///
 /// Why this widget exists:
-/// - Loads categories from [categoriesProvider]
+/// - Shows All + Laptops / TVs / AirPods / Smartwatches / ...
 /// - Updates [selectedCategoryProvider] when a chip is tapped
 /// - Keeps Home focused on the product grid layout
 class CategoryChipBar extends ConsumerWidget {
@@ -82,7 +82,7 @@ class CategoryChipBar extends ConsumerWidget {
               scrollDirection: Axis.horizontal,
               padding: EdgeInsets.symmetric(horizontal: AppSpacing.md),
               children: [
-                // Always first: show every product.
+                // Always first: show every electronics product.
                 CategoryChip(
                   label: 'All',
                   isSelected: selectedCategory == null,
@@ -90,7 +90,7 @@ class CategoryChipBar extends ConsumerWidget {
                     ref.read(selectedCategoryProvider.notifier).selectAll();
                   },
                 ),
-                // API categories (never hardcoded beyond the "All" option).
+                // ElectroMart electronics departments.
                 ...categories.map((category) {
                   return CategoryChip(
                     label: category.displayName,
