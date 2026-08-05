@@ -61,27 +61,16 @@ final clearCartUseCaseProvider = Provider<ClearCartUseCase>((ref) {
 ///
 /// Why this class exists:
 /// - One provider for cart (loading / success / error)
-/// - UI will call methods like [addToCart] — not SharedPreferences
-/// - Every use case already saves the cart as JSON locally
-///
-/// State type is [Cart], which includes:
-/// - items
-/// - subtotal
-/// - totalQuantity
+/// - UI calls methods like [addToCart] — never SharedPreferences
+/// - Repository already saves JSON after every change
 class CartNotifier extends AsyncNotifier<Cart> {
-  /// Called the first time something watches [cartProvider].
-  ///
-  /// Integration: cart restore on app start.
-  /// [App] watches [cartProvider], so this runs early and reloads
-  /// the JSON cart saved in SharedPreferences.
+  /// Loads the cart when [cartProvider] is first watched (app start).
   @override
   Future<Cart> build() {
     return ref.read(getCartUseCaseProvider)();
   }
 
-  /// Reloads the cart from SharedPreferences.
-  ///
-  /// Useful after login / app resume, or if you want a manual refresh.
+  /// Full reload with a loading state (used by Retry on the cart page).
   Future<void> loadCart() async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() {
@@ -89,53 +78,88 @@ class CartNotifier extends AsyncNotifier<Cart> {
     });
   }
 
-  /// Adds a product line to the cart.
+  /// Adds a product. Duplicates increase quantity on the same row.
   ///
-  /// If the product is already there, quantity increases by 1.
-  /// The repository saves the updated cart to SharedPreferences.
+  /// Does NOT flip the whole page to loading — keeps the list visible.
   Future<void> addToCart(CartItem item) async {
-    state = await AsyncValue.guard(() {
+    await _updateCart(() {
       return ref.read(addToCartUseCaseProvider)(item);
     });
   }
 
-  /// Removes one product completely (all of its quantity).
+  /// Removes one product line completely.
   Future<void> removeFromCart(int productId) async {
-    state = await AsyncValue.guard(() {
+    await _updateCart(() {
       return ref.read(removeFromCartUseCaseProvider)(productId);
     });
   }
 
-  /// Increases quantity of one product by 1, then saves.
+  /// Increases quantity by 1.
   Future<void> increaseQuantity(int productId) async {
-    state = await AsyncValue.guard(() {
+    await _updateCart(() {
       return ref.read(increaseQuantityUseCaseProvider)(productId);
     });
   }
 
-  /// Decreases quantity of one product by 1, then saves.
-  ///
-  /// If quantity reaches 0, the item is removed from the cart.
+  /// Decreases quantity by 1 (removes the row at 0 — never goes negative).
   Future<void> decreaseQuantity(int productId) async {
-    state = await AsyncValue.guard(() {
+    await _updateCart(() {
       return ref.read(decreaseQuantityUseCaseProvider)(productId);
     });
   }
 
-  /// Removes every item and clears SharedPreferences cart JSON.
+  /// Clears every item from the cart.
   Future<void> clearCart() async {
-    state = await AsyncValue.guard(() {
+    await _updateCart(() {
       return ref.read(clearCartUseCaseProvider)();
     });
   }
+
+  /// Runs a cart change and updates [state].
+  ///
+  /// On failure we keep the previous cart on screen when possible,
+  /// then rethrow so the UI can show a friendly SnackBar.
+  Future<void> _updateCart(Future<Cart> Function() action) async {
+    // Remember the last good cart before we try to write.
+    final previousCart = state.asData?.value;
+
+    try {
+      final cart = await action();
+      state = AsyncData(cart);
+    } catch (error, stackTrace) {
+      if (previousCart != null) {
+        // Keep showing items — do not blank the page on a save error.
+        state = AsyncData(previousCart);
+      } else {
+        state = AsyncError(error, stackTrace);
+      }
+
+      // Let the caller (page / button) show a SnackBar.
+      rethrow;
+    }
+  }
+
+  /// Friendly message for cart UI / SnackBars.
+  static String errorMessage(Object error) {
+    final text = error.toString().toLowerCase();
+
+    if (text.contains('sharedpreferences') || text.contains('prefs')) {
+      return 'Could not save your cart on this device. Please try again.';
+    }
+
+    return 'Something went wrong with your cart. Please try again.';
+  }
 }
 
-/// Main cart provider used by future Cart UI / Add to Cart buttons.
+/// Top-level helper so widgets can call [cartErrorMessage] easily.
+String cartErrorMessage(Object error) => CartNotifier.errorMessage(error);
+
+/// Main cart provider used by Cart page and Add to Cart buttons.
 final cartProvider =
     AsyncNotifierProvider<CartNotifier, Cart>(CartNotifier.new);
 
 // ---------------------------------------------------------------------------
-// Convenient read-only values for the UI (later)
+// Convenient read-only values for the UI
 // ---------------------------------------------------------------------------
 
 /// List of cart lines. Empty list while loading or on error.

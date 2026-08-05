@@ -3,15 +3,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../app/router/app_router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 
-/// Friendly empty state when the cart has no items.
+/// Shown when the cart has zero items.
 ///
-/// Why this widget exists:
-/// - Keeps empty-cart UI out of [CartPage]
-/// - Offers a clear path back to shopping
+/// Friendly empty state with a clear next step: browse products.
 class EmptyCartWidget extends StatelessWidget {
   const EmptyCartWidget({super.key});
 
@@ -21,16 +18,25 @@ class EmptyCartWidget extends StatelessWidget {
 
     return Center(
       child: Padding(
-        padding: EdgeInsets.all(AppSpacing.lg),
+        padding: EdgeInsets.all(AppSpacing.xl),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.shopping_cart_outlined,
-              size: 72.sp,
-              color: AppColors.textSecondary,
+            // Soft circle behind the cart icon
+            Container(
+              width: 120.w,
+              height: 120.w,
+              decoration: BoxDecoration(
+                color: AppColors.primaryLight,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.shopping_bag_outlined,
+                size: 56.sp,
+                color: AppColors.primary,
+              ),
             ),
-            Gap(AppSpacing.md),
+            Gap(AppSpacing.xl),
             Text(
               'Your cart is empty',
               style: textTheme.headlineSmall,
@@ -38,17 +44,27 @@ class EmptyCartWidget extends StatelessWidget {
             ),
             Gap(AppSpacing.sm),
             Text(
-              'Browse electronics and add items to your cart to see them here.',
+              'Browse electronics and tap “Add to Cart” '
+              'on any product. Your items will show up here.',
               style: textTheme.bodyMedium?.copyWith(
                 color: AppColors.textSecondary,
+                height: 1.45,
               ),
               textAlign: TextAlign.center,
             ),
-            Gap(AppSpacing.lg),
+            Gap(AppSpacing.xl),
             FilledButton.icon(
-              onPressed: () => context.go(AppRoutes.home),
+              onPressed: () => context.go('/home'),
               icon: const Icon(Icons.storefront_outlined),
-              label: const Text('Continue shopping'),
+              label: const Text('Browse products'),
+            ),
+            Gap(AppSpacing.sm),
+            Text(
+              'Tip: the cart badge on Home updates as you shop.',
+              style: textTheme.bodySmall?.copyWith(
+                color: AppColors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
             ),
           ],
         ),

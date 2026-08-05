@@ -2,203 +2,177 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../domain/entities/cart_item.dart';
+import 'quantity_selector.dart';
 
-/// One cart row: image, title, price, quantity controls, remove.
+/// One product row inside the cart list.
 ///
-/// Why this widget exists:
-/// - Keeps each cart line small and reusable
-/// - [CartPage] only wires Riverpod callbacks
+/// Shows image, title, unit price, line total, quantity controls,
+/// and a remove action. Tapping the row opens product details.
 class CartItemTile extends StatelessWidget {
   const CartItemTile({
-    super.key,
     required this.item,
     required this.onIncrease,
     required this.onDecrease,
     required this.onRemove,
+    this.isBusy = false,
+    super.key,
   });
 
   final CartItem item;
+
+  /// +1 quantity (repository merges duplicates; never creates a second row).
   final VoidCallback onIncrease;
+
+  /// −1 quantity (disabled visually when quantity is 1).
   final VoidCallback onDecrease;
+
+  /// Remove this product from the cart entirely.
   final VoidCallback onRemove;
+
+  /// When true, quantity buttons are disabled (optional mutation lock).
+  final bool isBusy;
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
-    return Container(
-      margin: EdgeInsets.only(bottom: AppSpacing.md),
-      padding: EdgeInsets.all(AppSpacing.sm),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(AppSpacing.radius),
-        border: Border.all(color: AppColors.border),
+    return Dismissible(
+      // Unique key so Flutter can animate the correct row away.
+      key: ValueKey('cart-${item.productId}'),
+      direction: DismissDirection.endToStart,
+      onDismissed: (_) => onRemove(),
+      background: Container(
+        alignment: Alignment.centerRight,
+        padding: EdgeInsets.only(right: AppSpacing.lg),
+        decoration: BoxDecoration(
+          color: AppColors.error.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
+        ),
+        child: Icon(
+          Icons.delete_outline_rounded,
+          color: AppColors.error,
+          size: 28.sp,
+        ),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Product image
-          ClipRRect(
-            borderRadius: BorderRadius.circular(AppSpacing.radius),
-            child: ColoredBox(
-              color: AppColors.background,
-              child: SizedBox(
-                width: 88.w,
-                height: 88.w,
-                child: CachedNetworkImage(
-                  imageUrl: item.image,
-                  fit: BoxFit.contain,
-                  placeholder: (context, url) {
-                    return const Center(
-                      child: SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                    );
-                  },
-                  errorWidget: (context, url, error) {
-                    return Icon(
-                      Icons.devices_other_outlined,
-                      color: AppColors.textSecondary,
-                      size: 28.sp,
-                    );
-                  },
-                ),
-              ),
+      child: Material(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
+        child: InkWell(
+          onTap: () => context.push('/product/${item.productId}'),
+          borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
+          child: Container(
+            padding: EdgeInsets.all(AppSpacing.sm),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
+              border: Border.all(color: AppColors.border),
             ),
-          ),
-          Gap(AppSpacing.sm),
-
-          // Text + controls
-          Expanded(
-            child: Column(
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Text(
+                _ProductThumb(imageUrl: item.image),
+                Gap(AppSpacing.sm),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
                         item.title,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: textTheme.titleSmall,
                       ),
-                    ),
-                    IconButton(
-                      tooltip: 'Remove',
-                      onPressed: onRemove,
-                      visualDensity: VisualDensity.compact,
-                      icon: Icon(
-                        Icons.delete_outline_rounded,
-                        color: AppColors.error,
-                        size: 22.sp,
+                      Gap(4.h),
+                      Text(
+                        '\$${item.price.toStringAsFixed(2)} each',
+                        style: textTheme.bodySmall?.copyWith(
+                          color: AppColors.textSecondary,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-                Gap(AppSpacing.xs),
-                Text(
-                  '\$${item.price.toStringAsFixed(2)} each',
-                  style: textTheme.bodySmall?.copyWith(
-                    color: AppColors.textSecondary,
+                      Gap(AppSpacing.sm),
+                      Row(
+                        children: [
+                          // Reusable quantity control (− / n / +).
+                          QuantitySelector(
+                            quantity: item.quantity,
+                            enabled: !isBusy,
+                            onIncrease: onIncrease,
+                            onDecrease: onDecrease,
+                          ),
+                          const Spacer(),
+                          Text(
+                            '\$${item.lineTotal.toStringAsFixed(2)}',
+                            style: textTheme.titleMedium?.copyWith(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-                Gap(AppSpacing.sm),
-                Row(
-                  children: [
-                    _QuantitySelector(
-                      quantity: item.quantity,
-                      onIncrease: onIncrease,
-                      onDecrease: onDecrease,
-                    ),
-                    const Spacer(),
-                    Text(
-                      '\$${item.lineTotal.toStringAsFixed(2)}',
-                      style: textTheme.titleMedium?.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ],
+                // Explicit remove (swipe also works).
+                IconButton(
+                  onPressed: isBusy ? null : onRemove,
+                  tooltip: 'Remove from cart',
+                  icon: Icon(
+                    Icons.close_rounded,
+                    size: 20.sp,
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
 }
 
-/// Compact − / quantity / + control.
-class _QuantitySelector extends StatelessWidget {
-  const _QuantitySelector({
-    required this.quantity,
-    required this.onIncrease,
-    required this.onDecrease,
-  });
+/// Small product image with loading / error fallbacks.
+class _ProductThumb extends StatelessWidget {
+  const _ProductThumb({required this.imageUrl});
 
-  final int quantity;
-  final VoidCallback onIncrease;
-  final VoidCallback onDecrease;
+  final String imageUrl;
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(AppSpacing.radius),
-        border: Border.all(color: AppColors.border),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(AppSpacing.radius),
+      child: ColoredBox(
         color: AppColors.background,
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _QtyButton(
-            icon: Icons.remove_rounded,
-            onPressed: onDecrease,
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-            child: Text(
-              '$quantity',
-              style: textTheme.titleSmall,
+        child: CachedNetworkImage(
+          imageUrl: imageUrl,
+          width: 72.w,
+          height: 72.w,
+          fit: BoxFit.contain,
+          placeholder: (_, _) => SizedBox(
+            width: 72.w,
+            height: 72.w,
+            child: Center(
+              child: SizedBox(
+                width: 20.w,
+                height: 20.w,
+                child: const CircularProgressIndicator(strokeWidth: 2),
+              ),
             ),
           ),
-          _QtyButton(
-            icon: Icons.add_rounded,
-            onPressed: onIncrease,
+          errorWidget: (_, _, _) => SizedBox(
+            width: 72.w,
+            height: 72.w,
+            child: Icon(
+              Icons.image_not_supported_outlined,
+              color: AppColors.textSecondary,
+              size: 24.sp,
+            ),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class _QtyButton extends StatelessWidget {
-  const _QtyButton({
-    required this.icon,
-    required this.onPressed,
-  });
-
-  final IconData icon;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onPressed,
-      borderRadius: BorderRadius.circular(AppSpacing.radius),
-      child: Padding(
-        padding: EdgeInsets.all(AppSpacing.xs),
-        child: Icon(icon, size: 20.sp, color: AppColors.textPrimary),
+        ),
       ),
     );
   }

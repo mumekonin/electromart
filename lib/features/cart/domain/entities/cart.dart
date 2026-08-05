@@ -16,6 +16,9 @@ class Cart {
   /// True when there are no items.
   bool get isEmpty => items.isEmpty;
 
+  /// True when the cart has at least one item.
+  bool get isNotEmpty => items.isNotEmpty;
+
   /// Sum of all line totals (price × quantity for each item).
   double get subtotal {
     var total = 0.0;

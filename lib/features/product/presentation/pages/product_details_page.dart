@@ -118,27 +118,41 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
           onAddToCart: () async {
             final messenger = ScaffoldMessenger.of(context);
 
-            await ref.read(cartProvider.notifier).addToCart(
-                  CartItem(
-                    productId: product.id,
-                    title: product.title,
-                    price: product.price,
-                    image: product.image,
-                    quantity: 1,
+            try {
+              await ref.read(cartProvider.notifier).addToCart(
+                    CartItem(
+                      productId: product.id,
+                      title: product.title,
+                      price: product.price,
+                      image: product.image,
+                      quantity: 1,
+                    ),
+                  );
+
+              if (!mounted) return;
+
+              messenger
+                ..hideCurrentSnackBar()
+                ..showSnackBar(
+                  const SnackBar(
+                    content: Text('Added to cart'),
+                    behavior: SnackBarBehavior.floating,
+                    backgroundColor: AppColors.success,
                   ),
                 );
+            } catch (error) {
+              if (!mounted) return;
 
-            if (!mounted) return;
-
-            messenger
-              ..hideCurrentSnackBar()
-              ..showSnackBar(
-                const SnackBar(
-                  content: Text('Added to cart'),
-                  behavior: SnackBarBehavior.floating,
-                  backgroundColor: AppColors.success,
-                ),
-              );
+              messenger
+                ..hideCurrentSnackBar()
+                ..showSnackBar(
+                  SnackBar(
+                    content: Text(cartErrorMessage(error)),
+                    behavior: SnackBarBehavior.floating,
+                    backgroundColor: AppColors.error,
+                  ),
+                );
+            }
           },
           onBuyNow: () => _showComingSoon('Checkout'),
         ),

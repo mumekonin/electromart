@@ -6,102 +6,107 @@ import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../domain/entities/cart.dart';
 import '../providers/cart_provider.dart';
+import '../widgets/cart_error_widget.dart';
 import '../widgets/cart_item_tile.dart';
+import '../widgets/cart_loading_view.dart';
 import '../widgets/cart_summary.dart';
 import '../widgets/empty_cart_widget.dart';
 
-/// Shopping cart screen for ElectroMart.
+/// Shopping cart screen.
 ///
-/// Why this page exists:
-/// - Shows saved cart items from [cartProvider]
-/// - Lets the user change quantities or remove items
-/// - Checkout button is UI-only (no payment yet)
+/// States this page handles:
+/// 1. First load → [CartLoadingView] skeleton
+/// 2. Load failed → [CartErrorWidget] with retry
+/// 3. Loaded + empty → [EmptyCartWidget]
+/// 4. Loaded + items → list + [CartSummary]
+///
+/// Quantity changes keep showing the previous cart (no full-page spinner)
+/// thanks to [skipLoadingOnReload] and the provider's mutate helpers.
 class CartPage extends ConsumerWidget {
   const CartPage({super.key});
 
-  void _showComingSoon(BuildContext context) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        const SnackBar(
-          content: Text('Checkout coming soon'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cartState = ref.watch(cartProvider);
+    final cartAsync = ref.watch(cartProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: const Text('My Cart'),
+        title: const Text('Cart'),
         actions: [
-          // Show clear only when the cart has items.
-          if (cartState.value?.isEmpty == false)
+          // Clear all — only useful when we have items.
+          if (cartAsync.value?.isNotEmpty ?? false)
             TextButton(
-              onPressed: () {
-                ref.read(cartProvider.notifier).clearCart();
-              },
-              child: const Text('Clear'),
+              onPressed: () => _confirmClearCart(context, ref),
+              child: Text(
+                'Clear',
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: AppColors.error,
+                    ),
+              ),
             ),
         ],
       ),
-      body: cartState.when(
-        loading: () => const Center(
-          child: CircularProgressIndicator(),
+      body: cartAsync.when(
+        // Keep showing the last good cart while a mutation reloads.
+        skipLoadingOnReload: true,
+        skipLoadingOnRefresh: true,
+        loading: () => const CartLoadingView(),
+        error: (error, _) => CartErrorWidget(
+          message: cartErrorMessage(error),
+          onRetry: () => ref.read(cartProvider.notifier).loadCart(),
         ),
-        error: (error, _) {
-          return Center(
-            child: Padding(
-              padding: EdgeInsets.all(AppSpacing.lg),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Could not load your cart.',
-                    style: Theme.of(context).textTheme.titleMedium,
-                    textAlign: TextAlign.center,
-                  ),
-                  Gap(AppSpacing.md),
-                  FilledButton.icon(
-                    onPressed: () {
-                      ref.read(cartProvider.notifier).loadCart();
-                    },
-                    icon: const Icon(Icons.refresh),
-                    label: const Text('Retry'),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
         data: (cart) {
           if (cart.isEmpty) {
             return const EmptyCartWidget();
           }
-
-          return _CartContent(
-            cart: cart,
-            onCheckout: () => _showComingSoon(context),
-          );
+          return _CartContent(cart: cart);
         },
       ),
     );
   }
+
+  Future<void> _confirmClearCart(BuildContext context, WidgetRef ref) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Clear cart?'),
+          content: const Text(
+            'This removes every item from your cart. '
+            'You can add products again anytime.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColors.error,
+              ),
+              child: const Text('Clear all'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true && context.mounted) {
+      await _runCartAction(
+        context,
+        () => ref.read(cartProvider.notifier).clearCart(),
+      );
+    }
+  }
 }
 
-/// List of cart tiles + bottom summary.
+/// List of items + sticky summary at the bottom.
 class _CartContent extends ConsumerWidget {
-  const _CartContent({
-    required this.cart,
-    required this.onCheckout,
-  });
+  const _CartContent({required this.cart});
 
   final Cart cart;
-  final VoidCallback onCheckout;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -110,33 +115,58 @@ class _CartContent extends ConsumerWidget {
     return Column(
       children: [
         Expanded(
-          child: ListView.builder(
+          child: ListView.separated(
             padding: EdgeInsets.all(AppSpacing.md),
             itemCount: cart.items.length,
+            separatorBuilder: (_, _) => Gap(AppSpacing.sm),
             itemBuilder: (context, index) {
               final item = cart.items[index];
-
               return CartItemTile(
                 item: item,
-                onIncrease: () {
-                  notifier.increaseQuantity(item.productId);
-                },
-                onDecrease: () {
-                  notifier.decreaseQuantity(item.productId);
-                },
-                onRemove: () {
-                  notifier.removeFromCart(item.productId);
-                },
+                onIncrease: () => _runCartAction(
+                  context,
+                  () => notifier.increaseQuantity(item.productId),
+                ),
+                onDecrease: () => _runCartAction(
+                  context,
+                  () => notifier.decreaseQuantity(item.productId),
+                ),
+                onRemove: () => _runCartAction(
+                  context,
+                  () => notifier.removeFromCart(item.productId),
+                ),
               );
             },
           ),
         ),
-        CartSummary(
-          totalItems: cart.totalQuantity,
-          subtotal: cart.subtotal,
-          onCheckout: onCheckout,
-        ),
+        CartSummary(cart: cart),
       ],
     );
+  }
+}
+
+/// Runs a cart write and shows a friendly SnackBar on failure.
+///
+/// Why a shared helper?
+/// - Avoids repeating try/catch in every button
+/// - Keeps error wording consistent via [cartErrorMessage]
+Future<void> _runCartAction(
+  BuildContext context,
+  Future<void> Function() action,
+) async {
+  try {
+    await action();
+  } catch (error) {
+    if (!context.mounted) return;
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          content: Text(cartErrorMessage(error)),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: AppColors.error,
+        ),
+      );
   }
 }

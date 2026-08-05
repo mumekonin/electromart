@@ -31,7 +31,9 @@ class CartLocalDataSource {
 
   /// Loads the cart list from SharedPreferences.
   ///
-  /// Returns an empty list when nothing is saved yet.
+  /// Returns an empty list when:
+  /// - nothing is saved yet, or
+  /// - the saved JSON is broken (we clear it so the app can recover)
   Future<List<CartItemModel>> loadCart() async {
     final jsonString = _prefs.getString(cartKey);
 
@@ -39,16 +41,35 @@ class CartLocalDataSource {
       return [];
     }
 
-    final decoded = jsonDecode(jsonString);
+    try {
+      final decoded = jsonDecode(jsonString);
 
-    if (decoded is! List) {
+      if (decoded is! List) {
+        await clearCart();
+        return [];
+      }
+
+      final items = <CartItemModel>[];
+
+      for (final item in decoded) {
+        if (item is! Map) continue;
+
+        final model = CartItemModel.fromJson(
+          Map<String, dynamic>.from(item),
+        );
+
+        // Skip invalid / negative quantities from corrupted data.
+        if (model.quantity > 0) {
+          items.add(model);
+        }
+      }
+
+      return items;
+    } catch (_) {
+      // Broken JSON should not crash the app — reset the cart key.
+      await clearCart();
       return [];
     }
-
-    return decoded.map((item) {
-      final map = Map<String, dynamic>.from(item as Map);
-      return CartItemModel.fromJson(map);
-    }).toList();
   }
 
   /// Deletes the saved cart JSON.
