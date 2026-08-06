@@ -47,7 +47,7 @@ class RatingSection extends StatelessWidget {
         Text(
           '(${rating.count} reviews)',
           style: textTheme.bodySmall?.copyWith(
-            color: AppColors.textSecondary,
+            color: AppColors.textSecondaryOf(context),
           ),
         ),
       ],

@@ -29,7 +29,7 @@ class SplashLoadingIndicator extends StatelessWidget {
         Text(
           'Getting things ready…',
           style: textTheme.bodySmall?.copyWith(
-            color: AppColors.textSecondary,
+            color: AppColors.textSecondaryOf(context),
           ),
         ),
       ],

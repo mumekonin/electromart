@@ -30,7 +30,7 @@ class ProfileEmptyView extends StatelessWidget {
             Icon(
               Icons.person_outline_rounded,
               size: 64.sp,
-              color: AppColors.textSecondary,
+              color: AppColors.textSecondaryOf(context),
             ),
             Gap(AppSpacing.md),
             Text(
@@ -43,7 +43,7 @@ class ProfileEmptyView extends StatelessWidget {
               'We could not find profile details for this account. '
               'Please try again in a moment.',
               style: textTheme.bodyMedium?.copyWith(
-                color: AppColors.textSecondary,
+                color: AppColors.textSecondaryOf(context),
               ),
               textAlign: TextAlign.center,
             ),

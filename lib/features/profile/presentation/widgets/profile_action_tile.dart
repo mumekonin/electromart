@@ -35,11 +35,11 @@ class ProfileActionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final color = isDestructive ? AppColors.error : AppColors.textPrimary;
+    final color = isDestructive ? AppColors.error : AppColors.textPrimaryOf(context);
     final iconColor = isDestructive ? AppColors.error : AppColors.primary;
 
     return Material(
-      color: AppColors.surface,
+      color: AppColors.surfaceOf(context),
       borderRadius: BorderRadius.circular(AppSpacing.radius),
       child: InkWell(
         onTap: onTap,
@@ -51,7 +51,7 @@ class ProfileActionTile extends StatelessWidget {
           ),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppSpacing.radius),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: AppColors.borderOf(context)),
           ),
           child: Row(
             children: [
@@ -70,7 +70,7 @@ class ProfileActionTile extends StatelessWidget {
                       Text(
                         subtitle!,
                         style: textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
+                          color: AppColors.textSecondaryOf(context),
                         ),
                       ),
                     ],
@@ -79,7 +79,7 @@ class ProfileActionTile extends StatelessWidget {
               ),
               Icon(
                 Icons.chevron_right_rounded,
-                color: AppColors.textSecondary,
+                color: AppColors.textSecondaryOf(context),
               ),
             ],
           ),

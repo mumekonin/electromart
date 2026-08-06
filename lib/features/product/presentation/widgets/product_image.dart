@@ -24,9 +24,9 @@ class ProductImage extends StatelessWidget {
       width: double.infinity,
       height: 320.h,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.borderOf(context)),
       ),
       clipBehavior: Clip.antiAlias,
       child: ColoredBox(
@@ -43,7 +43,7 @@ class ProductImage extends StatelessWidget {
             return Icon(
               Icons.devices_other_outlined,
               size: 64.sp,
-              color: AppColors.textSecondary,
+              color: AppColors.textSecondaryOf(context),
             );
           },
         ),

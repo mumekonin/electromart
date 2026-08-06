@@ -48,9 +48,9 @@ class QuantitySelector extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.background,
+        color: AppColors.backgroundOf(context),
         borderRadius: BorderRadius.circular(AppSpacing.radius),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.borderOf(context)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -111,8 +111,8 @@ class _QuantityButton extends StatelessWidget {
               icon,
               size: 18.sp,
               color: isEnabled
-                  ? AppColors.textPrimary
-                  : AppColors.textSecondary,
+                  ? AppColors.textPrimaryOf(context)
+                  : AppColors.textSecondaryOf(context),
             ),
           ),
         ),

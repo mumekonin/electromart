@@ -40,10 +40,10 @@ class CategoryChip extends StatelessWidget {
               vertical: AppSpacing.sm,
             ),
             decoration: BoxDecoration(
-              color: isSelected ? AppColors.primary : AppColors.surface,
+              color: isSelected ? AppColors.primary : AppColors.surfaceOf(context),
               borderRadius: BorderRadius.circular(24.r),
               border: Border.all(
-                color: isSelected ? AppColors.primary : AppColors.border,
+                color: isSelected ? AppColors.primary : AppColors.borderOf(context),
               ),
             ),
             child: AnimatedDefaultTextStyle(
@@ -52,7 +52,7 @@ class CategoryChip extends StatelessWidget {
               style: (textTheme.labelLarge ?? const TextStyle()).copyWith(
                 color: isSelected
                     ? AppColors.textOnPrimary
-                    : AppColors.textPrimary,
+                    : AppColors.textPrimaryOf(context),
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
               ),
               child: Text(label),

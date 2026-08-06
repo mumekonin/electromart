@@ -28,7 +28,7 @@ class ProductCard extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
 
     return Material(
-      color: AppColors.surface,
+      color: AppColors.surfaceOf(context),
       borderRadius: BorderRadius.circular(AppSpacing.radius),
       child: InkWell(
         borderRadius: BorderRadius.circular(AppSpacing.radius),
@@ -38,7 +38,7 @@ class ProductCard extends StatelessWidget {
         child: Ink(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppSpacing.radius),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: AppColors.borderOf(context)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -51,7 +51,7 @@ class ProductCard extends StatelessWidget {
                     top: Radius.circular(AppSpacing.radius),
                   ),
                   child: ColoredBox(
-                    color: AppColors.background,
+                    color: AppColors.backgroundOf(context),
                     child: CachedNetworkImage(
                       imageUrl: product.image,
                       fit: BoxFit.contain,
@@ -68,7 +68,7 @@ class ProductCard extends StatelessWidget {
                         return Icon(
                           Icons.broken_image_outlined,
                           size: 36.sp,
-                          color: AppColors.textSecondary,
+                          color: AppColors.textSecondaryOf(context),
                         );
                       },
                     ),
@@ -96,7 +96,7 @@ class ProductCard extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: textTheme.labelSmall?.copyWith(
-                          color: AppColors.textSecondary,
+                          color: AppColors.textSecondaryOf(context),
                         ),
                       ),
                       Gap(AppSpacing.xs),

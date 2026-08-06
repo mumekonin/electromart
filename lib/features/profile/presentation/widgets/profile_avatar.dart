@@ -29,9 +29,9 @@ class ProfileAvatar extends StatelessWidget {
       width: diameter,
       height: diameter,
       decoration: BoxDecoration(
-        color: AppColors.primaryLight,
+        color: AppColors.primarySoftOf(context),
         shape: BoxShape.circle,
-        border: Border.all(color: AppColors.border, width: 2),
+        border: Border.all(color: AppColors.borderOf(context), width: 2),
       ),
       alignment: Alignment.center,
       child: Text(

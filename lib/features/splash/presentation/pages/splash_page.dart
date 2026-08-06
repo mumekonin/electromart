@@ -101,15 +101,15 @@ class _SplashPageState extends ConsumerState<SplashPage>
   Widget build(BuildContext context) {
     return Scaffold(
       body: DecoratedBox(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           // Soft electronics-store atmosphere (not a flat blank screen).
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              AppColors.primaryLight,
-              AppColors.background,
-              AppColors.surface,
+              AppColors.primarySoftOf(context),
+              AppColors.backgroundOf(context),
+              AppColors.surfaceOf(context),
             ],
           ),
         ),

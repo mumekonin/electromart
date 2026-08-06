@@ -35,7 +35,7 @@ class ProductsEmptyView extends StatelessWidget {
             Icon(
               Icons.inventory_2_outlined,
               size: 64.sp,
-              color: AppColors.textSecondary,
+              color: AppColors.textSecondaryOf(context),
             ),
             Gap(AppSpacing.md),
             Text(
@@ -47,7 +47,7 @@ class ProductsEmptyView extends StatelessWidget {
             Text(
               message,
               style: textTheme.bodyMedium?.copyWith(
-                color: AppColors.textSecondary,
+                color: AppColors.textSecondaryOf(context),
               ),
               textAlign: TextAlign.center,
             ),

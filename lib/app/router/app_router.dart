@@ -10,6 +10,8 @@ import '../../features/navigation/presentation/pages/main_shell_page.dart';
 import '../../features/product/presentation/pages/home_page.dart';
 import '../../features/product/presentation/pages/product_details_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
+import '../../features/settings/presentation/pages/about_page.dart';
+import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
 
 /// Route path constants.
@@ -34,6 +36,12 @@ class AppRoutes {
   /// Path pattern used by GoRouter for product details.
   /// Lives outside the shell so the bottom bar hides on details.
   static const String productDetails = '/product/:id';
+
+  /// Settings page (opened from Profile).
+  static const String settings = '/settings';
+
+  /// About page (opened from Settings).
+  static const String about = '/about';
 
   /// Builds a concrete details path for a product id.
   static String productDetailsPath(int id) => '/product/$id';
@@ -163,6 +171,18 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           final productId = int.tryParse(idParam ?? '') ?? 0;
           return ProductDetailsPage(productId: productId);
         },
+      ),
+
+      // Settings + About (opened from Profile; no bottom bar).
+      GoRoute(
+        path: AppRoutes.settings,
+        name: 'settings',
+        builder: (context, state) => const SettingsPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.about,
+        name: 'about',
+        builder: (context, state) => const AboutPage(),
       ),
     ],
   );

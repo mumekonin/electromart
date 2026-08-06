@@ -24,7 +24,7 @@ class CategoryChipBar extends ConsumerWidget {
 
     return Container(
       width: double.infinity,
-      color: AppColors.surface,
+      color: AppColors.surfaceOf(context),
       padding: EdgeInsets.symmetric(vertical: AppSpacing.sm),
       child: categoriesState.when(
         loading: () => SizedBox(
@@ -70,7 +70,7 @@ class CategoryChipBar extends ConsumerWidget {
               child: Text(
                 'No categories available right now.',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.textSecondary,
+                      color: AppColors.textSecondaryOf(context),
                     ),
               ),
             );

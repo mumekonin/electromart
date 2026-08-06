@@ -39,9 +39,9 @@ class _CartSkeletonTile extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(AppSpacing.sm),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: AppColors.borderOf(context)),
       ),
       child: Row(
         children: [
@@ -50,7 +50,7 @@ class _CartSkeletonTile extends StatelessWidget {
             width: 72.w,
             height: 72.w,
             decoration: BoxDecoration(
-              color: AppColors.background,
+              color: AppColors.backgroundOf(context),
               borderRadius: BorderRadius.circular(AppSpacing.radius),
             ),
           ),
@@ -60,11 +60,11 @@ class _CartSkeletonTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _bar(width: double.infinity, height: 14.h),
+                _bar(context, width: double.infinity, height: 14.h),
                 Gap(AppSpacing.xs),
-                _bar(width: 80.w, height: 12.h),
+                _bar(context, width: 80.w, height: 12.h),
                 Gap(AppSpacing.sm),
-                _bar(width: 100.w, height: 28.h),
+                _bar(context, width: 100.w, height: 28.h),
               ],
             ),
           ),
@@ -73,12 +73,16 @@ class _CartSkeletonTile extends StatelessWidget {
     );
   }
 
-  Widget _bar({required double width, required double height}) {
+  Widget _bar(
+    BuildContext context, {
+    required double width,
+    required double height,
+  }) {
     return Container(
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: AppColors.background,
+        color: AppColors.backgroundOf(context),
         borderRadius: BorderRadius.circular(6.r),
       ),
     );

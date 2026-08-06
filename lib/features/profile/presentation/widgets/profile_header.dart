@@ -38,7 +38,7 @@ class ProfileHeader extends StatelessWidget {
         Text(
           '@${profile.username}',
           style: textTheme.bodyMedium?.copyWith(
-            color: AppColors.textSecondary,
+            color: AppColors.textSecondaryOf(context),
           ),
           textAlign: TextAlign.center,
         ),

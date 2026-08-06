@@ -72,7 +72,7 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
     final detailsState = ref.watch(productDetailsProvider(widget.productId));
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.backgroundOf(context),
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -90,7 +90,7 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
             },
             icon: Icon(
               _isFavorite ? Icons.favorite : Icons.favorite_border,
-              color: _isFavorite ? AppColors.error : AppColors.textPrimary,
+              color: _isFavorite ? AppColors.error : AppColors.textPrimaryOf(context),
             ),
           ),
         ],
@@ -200,7 +200,7 @@ class _ProductDetailsBody extends StatelessWidget {
                 Gap(AppSpacing.sm),
                 RatingSection(rating: product.rating),
                 Gap(AppSpacing.lg),
-                Divider(color: AppColors.border),
+                Divider(color: AppColors.borderOf(context)),
                 Gap(AppSpacing.md),
                 DescriptionSection(description: product.description),
                 Gap(AppSpacing.xl),

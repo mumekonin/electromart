@@ -29,7 +29,7 @@ class SearchEmptyView extends ConsumerWidget {
             Icon(
               Icons.search_off_rounded,
               size: 64.sp,
-              color: AppColors.textSecondary,
+              color: AppColors.textSecondaryOf(context),
             ),
             Gap(AppSpacing.md),
             Text(
@@ -42,7 +42,7 @@ class SearchEmptyView extends ConsumerWidget {
               'We could not find anything matching "$query".\n'
               'Try another keyword or clear the search.',
               style: textTheme.bodyMedium?.copyWith(
-                color: AppColors.textSecondary,
+                color: AppColors.textSecondaryOf(context),
               ),
               textAlign: TextAlign.center,
             ),

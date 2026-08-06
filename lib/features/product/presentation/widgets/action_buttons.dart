@@ -31,9 +31,9 @@ class ActionButtons extends StatelessWidget {
           AppSpacing.md,
         ),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: AppColors.surfaceOf(context),
           border: Border(
-            top: BorderSide(color: AppColors.border),
+            top: BorderSide(color: AppColors.borderOf(context)),
           ),
         ),
         child: Row(

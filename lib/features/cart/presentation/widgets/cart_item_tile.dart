@@ -60,7 +60,7 @@ class CartItemTile extends StatelessWidget {
         ),
       ),
       child: Material(
-        color: AppColors.surface,
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
         child: InkWell(
           onTap: () => context.push('/product/${item.productId}'),
@@ -69,7 +69,7 @@ class CartItemTile extends StatelessWidget {
             padding: EdgeInsets.all(AppSpacing.sm),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: AppColors.borderOf(context)),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,7 +90,7 @@ class CartItemTile extends StatelessWidget {
                       Text(
                         '\$${item.price.toStringAsFixed(2)} each',
                         style: textTheme.bodySmall?.copyWith(
-                          color: AppColors.textSecondary,
+                          color: AppColors.textSecondaryOf(context),
                         ),
                       ),
                       Gap(AppSpacing.sm),
@@ -123,7 +123,7 @@ class CartItemTile extends StatelessWidget {
                   icon: Icon(
                     Icons.close_rounded,
                     size: 20.sp,
-                    color: AppColors.textSecondary,
+                    color: AppColors.textSecondaryOf(context),
                   ),
                 ),
               ],
@@ -146,7 +146,7 @@ class _ProductThumb extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(AppSpacing.radius),
       child: ColoredBox(
-        color: AppColors.background,
+        color: AppColors.backgroundOf(context),
         child: CachedNetworkImage(
           imageUrl: imageUrl,
           width: 72.w,
@@ -168,7 +168,7 @@ class _ProductThumb extends StatelessWidget {
             height: 72.w,
             child: Icon(
               Icons.image_not_supported_outlined,
-              color: AppColors.textSecondary,
+              color: AppColors.textSecondaryOf(context),
               size: 24.sp,
             ),
           ),

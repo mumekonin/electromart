@@ -34,7 +34,7 @@ class ProfilePage extends ConsumerWidget {
     final profileAsync = ref.watch(profileProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.backgroundOf(context),
       appBar: AppBar(
         title: const Text('Profile'),
       ),
@@ -102,8 +102,8 @@ class _ProfileContent extends ConsumerWidget {
           ProfileActionTile(
             icon: Icons.settings_outlined,
             title: 'Settings',
-            subtitle: 'Preferences (coming soon)',
-            onTap: () => _showComingSoon(context, 'Settings'),
+            subtitle: 'Notifications, theme, and more',
+            onTap: () => context.push(AppRoutes.settings),
           ),
           Gap(AppSpacing.sm),
           ProfileActionTile(

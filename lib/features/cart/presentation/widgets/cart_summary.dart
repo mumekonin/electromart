@@ -35,11 +35,11 @@ class CartSummary extends StatelessWidget {
         AppSpacing.md,
       ),
       decoration: BoxDecoration(
-        color: AppColors.surface,
-        border: Border(top: BorderSide(color: AppColors.border)),
+        color: AppColors.surfaceOf(context),
+        border: Border(top: BorderSide(color: AppColors.borderOf(context))),
         boxShadow: [
           BoxShadow(
-            color: AppColors.textPrimary.withValues(alpha: 0.06),
+            color: AppColors.textPrimaryOf(context).withValues(alpha: 0.06),
             blurRadius: 12,
             offset: const Offset(0, -2),
           ),
@@ -55,7 +55,7 @@ class CartSummary extends StatelessWidget {
                 Text(
                   'Subtotal ($itemLabel)',
                   style: textTheme.bodyMedium?.copyWith(
-                    color: AppColors.textSecondary,
+                    color: AppColors.textSecondaryOf(context),
                   ),
                 ),
                 const Spacer(),
@@ -73,7 +73,7 @@ class CartSummary extends StatelessWidget {
               child: Text(
                 'Shipping & tax calculated at checkout (demo).',
                 style: textTheme.bodySmall?.copyWith(
-                  color: AppColors.textSecondary,
+                  color: AppColors.textSecondaryOf(context),
                 ),
               ),
             ),

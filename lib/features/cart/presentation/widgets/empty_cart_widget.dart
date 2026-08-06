@@ -28,7 +28,7 @@ class EmptyCartWidget extends StatelessWidget {
               width: 120.w,
               height: 120.w,
               decoration: BoxDecoration(
-                color: AppColors.primaryLight,
+                color: AppColors.primarySoftOf(context),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -48,7 +48,7 @@ class EmptyCartWidget extends StatelessWidget {
               'Browse electronics and tap “Add to Cart” '
               'on any product. Your items will show up here.',
               style: textTheme.bodyMedium?.copyWith(
-                color: AppColors.textSecondary,
+                color: AppColors.textSecondaryOf(context),
                 height: 1.45,
               ),
               textAlign: TextAlign.center,
@@ -64,7 +64,7 @@ class EmptyCartWidget extends StatelessWidget {
             Text(
               'Tip: the cart badge on Home updates as you shop.',
               style: textTheme.bodySmall?.copyWith(
-                color: AppColors.textSecondary,
+                color: AppColors.textSecondaryOf(context),
               ),
               textAlign: TextAlign.center,
             ),

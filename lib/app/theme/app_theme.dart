@@ -12,37 +12,63 @@ class AppTheme {
   AppTheme._();
 
   /// Light theme used by the whole app.
-  static ThemeData get light {
-    // Build text styles once and reuse them below.
-    final textTheme = AppTextTheme.build();
+  static ThemeData get light => _build(Brightness.light);
+
+  /// Dark theme used when Settings → Dark Mode is on.
+  static ThemeData get dark => _build(Brightness.dark);
+
+  static ThemeData _build(Brightness brightness) {
+    final isDark = brightness == Brightness.dark;
+    final textTheme = AppTextTheme.build(brightness: brightness);
+
+    final background = isDark ? AppColors.backgroundDark : AppColors.background;
+    final surface = isDark ? AppColors.surfaceDark : AppColors.surface;
+    final border = isDark ? AppColors.borderDark : AppColors.border;
+    final onSurface = isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
 
     final colorScheme = ColorScheme.fromSeed(
       seedColor: AppColors.primary,
-      brightness: Brightness.light,
+      brightness: brightness,
       primary: AppColors.primary,
       secondary: AppColors.secondary,
-      surface: AppColors.surface,
+      surface: surface,
       error: AppColors.error,
     );
 
     return ThemeData(
-      // Enable Material 3 (modern Flutter design system).
       useMaterial3: true,
-
+      brightness: brightness,
       colorScheme: colorScheme,
-      scaffoldBackgroundColor: AppColors.background,
+      scaffoldBackgroundColor: background,
       textTheme: textTheme,
-
-      // App bar style
       appBarTheme: AppBarTheme(
-        backgroundColor: AppColors.surface,
-        foregroundColor: AppColors.textPrimary,
+        backgroundColor: surface,
+        foregroundColor: onSurface,
         elevation: 0,
         centerTitle: true,
         titleTextStyle: textTheme.titleLarge,
       ),
-
-      // Elevated / filled buttons
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: surface,
+        indicatorColor: isDark
+            ? AppColors.primaryLightDark
+            : AppColors.primaryLight,
+        labelTextStyle: WidgetStatePropertyAll(textTheme.labelMedium),
+      ),
+      switchTheme: SwitchThemeData(
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return AppColors.primary;
+          }
+          return null;
+        }),
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
+            return AppColors.primary.withValues(alpha: 0.45);
+          }
+          return null;
+        }),
+      ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
@@ -54,35 +80,31 @@ class AppTheme {
           textStyle: textTheme.labelLarge,
         ),
       ),
-
-      // Outlined buttons
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.primary,
           minimumSize: const Size.fromHeight(48),
-          side: const BorderSide(color: AppColors.border),
+          side: BorderSide(color: border),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppSpacing.radius),
           ),
           textStyle: textTheme.labelLarge,
         ),
       ),
-
-      // Text fields
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.surface,
+        fillColor: surface,
         contentPadding: EdgeInsets.symmetric(
           horizontal: AppSpacing.md,
           vertical: AppSpacing.md,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppSpacing.radius),
-          borderSide: const BorderSide(color: AppColors.border),
+          borderSide: BorderSide(color: border),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppSpacing.radius),
-          borderSide: const BorderSide(color: AppColors.border),
+          borderSide: BorderSide(color: border),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppSpacing.radius),
@@ -93,22 +115,21 @@ class AppTheme {
           borderSide: const BorderSide(color: AppColors.error),
         ),
       ),
-
-      // Cards
       cardTheme: CardThemeData(
-        color: AppColors.surface,
+        color: surface,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppSpacing.radius),
-          side: const BorderSide(color: AppColors.border),
+          side: BorderSide(color: border),
         ),
       ),
-
-      // Dividers
-      dividerTheme: const DividerThemeData(
-        color: AppColors.border,
+      dividerTheme: DividerThemeData(
+        color: border,
         thickness: 1,
         space: 1,
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: surface,
       ),
     );
   }

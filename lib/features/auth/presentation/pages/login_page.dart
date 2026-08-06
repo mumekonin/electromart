@@ -85,7 +85,7 @@ class LoginPage extends ConsumerWidget {
                       width: 88.w,
                       height: 88.w,
                       decoration: BoxDecoration(
-                        color: AppColors.primaryLight,
+                        color: AppColors.primarySoftOf(context),
                         borderRadius:
                             BorderRadius.circular(AppSpacing.radiusLarge),
                       ),
@@ -107,7 +107,7 @@ class LoginPage extends ConsumerWidget {
                     'Sign in to continue shopping',
                     textAlign: TextAlign.center,
                     style: textTheme.bodyMedium?.copyWith(
-                      color: AppColors.textSecondary,
+                      color: AppColors.textSecondaryOf(context),
                     ),
                   ),
                   Gap(AppSpacing.xl),
@@ -127,7 +127,7 @@ class LoginPage extends ConsumerWidget {
                     'Demo: mor_2314 / 83r5^_',
                     textAlign: TextAlign.center,
                     style: textTheme.labelSmall?.copyWith(
-                      color: AppColors.textSecondary,
+                      color: AppColors.textSecondaryOf(context),
                     ),
                   ),
                 ],

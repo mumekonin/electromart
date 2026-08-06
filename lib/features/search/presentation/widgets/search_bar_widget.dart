@@ -75,18 +75,18 @@ class _SearchBarWidgetState extends ConsumerState<SearchBarWidget> {
                 )
               : null,
           filled: true,
-          fillColor: AppColors.surface,
+          fillColor: AppColors.surfaceOf(context),
           contentPadding: EdgeInsets.symmetric(
             horizontal: AppSpacing.md,
             vertical: AppSpacing.md,
           ),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
-            borderSide: const BorderSide(color: AppColors.border),
+            borderSide: BorderSide(color: AppColors.borderOf(context)),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
-            borderSide: const BorderSide(color: AppColors.border),
+            borderSide: BorderSide(color: AppColors.borderOf(context)),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),

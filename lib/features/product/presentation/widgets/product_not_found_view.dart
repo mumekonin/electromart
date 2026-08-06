@@ -27,7 +27,7 @@ class ProductNotFoundView extends StatelessWidget {
             Icon(
               Icons.search_off_rounded,
               size: 72.sp,
-              color: AppColors.textSecondary,
+              color: AppColors.textSecondaryOf(context),
             ),
             Gap(AppSpacing.md),
             Text(
@@ -39,7 +39,7 @@ class ProductNotFoundView extends StatelessWidget {
             Text(
               'This product may have been removed or the link is invalid.',
               style: textTheme.bodyMedium?.copyWith(
-                color: AppColors.textSecondary,
+                color: AppColors.textSecondaryOf(context),
               ),
               textAlign: TextAlign.center,
             ),

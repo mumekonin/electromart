@@ -5,12 +5,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../features/cart/presentation/providers/cart_provider.dart';
 import 'router/app_router.dart';
 import 'theme/app_theme.dart';
+import 'theme/theme_mode_provider.dart';
 
 /// Root widget of the ElectroMart application.
 ///
 /// Responsibilities:
 /// 1. Set up ScreenUtil for responsive sizing
-/// 2. Apply our Material 3 theme
+/// 2. Apply our Material 3 light / dark theme
 /// 3. Connect GoRouter for navigation (from Riverpod)
 /// 4. Restore the shopping cart from SharedPreferences on startup
 class App extends ConsumerWidget {
@@ -20,12 +21,14 @@ class App extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(goRouterProvider);
 
+    // Light or dark — controlled by Settings → Dark Mode.
+    final themeMode = ref.watch(themeModeProvider);
+
     // Integration: cart restore
     // Watching cartProvider here runs CartNotifier.build() as soon as
     // the app starts, so saved cart JSON is loaded before Home opens.
     ref.watch(cartProvider);
 
-    // ScreenUtilInit makes .w / .h / .sp / .r helpers work.
     return ScreenUtilInit(
       designSize: const Size(375, 812),
       minTextAdapt: true,
@@ -35,6 +38,8 @@ class App extends ConsumerWidget {
           title: 'ElectroMart',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.light,
+          darkTheme: AppTheme.dark,
+          themeMode: themeMode,
           routerConfig: router,
         );
       },

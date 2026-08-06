@@ -26,7 +26,7 @@ class CategoryBadge extends StatelessWidget {
         vertical: AppSpacing.xs,
       ),
       decoration: BoxDecoration(
-        color: AppColors.primaryLight,
+        color: AppColors.primarySoftOf(context),
         borderRadius: BorderRadius.circular(AppSpacing.radius),
       ),
       child: Text(

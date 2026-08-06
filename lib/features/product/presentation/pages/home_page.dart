@@ -38,7 +38,7 @@ class HomePage extends ConsumerWidget {
     final cartTotalItems = ref.watch(cartTotalItemsProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: AppColors.backgroundOf(context),
       appBar: AppBar(
         title: const Text('ElectroMart'),
         actions: [
@@ -62,7 +62,7 @@ class HomePage extends ConsumerWidget {
 
           // Electronics department chips.
           const CategoryChipBar(),
-          Divider(height: 1, color: AppColors.border),
+          Divider(height: 1, color: AppColors.borderOf(context)),
 
           // Product grid / loading / error / empty.
           Expanded(

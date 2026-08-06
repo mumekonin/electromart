@@ -31,7 +31,7 @@ class DescriptionSection extends StatelessWidget {
         Text(
           description,
           style: textTheme.bodyMedium?.copyWith(
-            color: AppColors.textSecondary,
+            color: AppColors.textSecondaryOf(context),
             height: 1.55,
           ),
         ),

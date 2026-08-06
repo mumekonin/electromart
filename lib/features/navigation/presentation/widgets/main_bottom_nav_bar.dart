@@ -32,8 +32,8 @@ class MainBottomNavBar extends ConsumerWidget {
     return NavigationBar(
       selectedIndex: navigationShell.currentIndex,
       onDestinationSelected: _onDestinationSelected,
-      backgroundColor: AppColors.surface,
-      indicatorColor: AppColors.primaryLight,
+      backgroundColor: AppColors.surfaceOf(context),
+      indicatorColor: AppColors.primarySoftOf(context),
       surfaceTintColor: Colors.transparent,
       labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
       destinations: [

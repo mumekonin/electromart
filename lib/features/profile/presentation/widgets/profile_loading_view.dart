@@ -21,7 +21,7 @@ class ProfileLoadingView extends StatelessWidget {
           Text(
             'Loading your profile…',
             style: textTheme.bodyMedium?.copyWith(
-              color: AppColors.textSecondary,
+              color: AppColors.textSecondaryOf(context),
             ),
           ),
         ],
