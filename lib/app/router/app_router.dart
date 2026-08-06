@@ -10,7 +10,7 @@ import '../../features/navigation/presentation/pages/main_shell_page.dart';
 import '../../features/product/presentation/pages/home_page.dart';
 import '../../features/product/presentation/pages/product_details_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
-import '../../features/settings/presentation/pages/about_page.dart';
+import '../../features/about/presentation/pages/about_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
 
