@@ -6,6 +6,7 @@ import '../../core/storage/storage_provider.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
+import '../../features/navigation/presentation/pages/main_shell_page.dart';
 import '../../features/product/presentation/pages/home_page.dart';
 import '../../features/product/presentation/pages/product_details_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
@@ -20,15 +21,18 @@ class AppRoutes {
 
   static const String splash = '/';
   static const String login = '/login';
+
+  /// Home tab inside the main bottom-navigation shell.
   static const String home = '/home';
 
-  /// Shopping cart page (opened from Home cart icon).
+  /// Cart tab inside the main bottom-navigation shell.
   static const String cart = '/cart';
 
-  /// User profile page (opened from Home profile icon).
+  /// Profile tab inside the main bottom-navigation shell.
   static const String profile = '/profile';
 
   /// Path pattern used by GoRouter for product details.
+  /// Lives outside the shell so the bottom bar hides on details.
   static const String productDetails = '/product/:id';
 
   /// Builds a concrete details path for a product id.
@@ -50,12 +54,17 @@ class _AuthRefreshListenable extends ChangeNotifier {
 /// - Router needs Riverpod to read login status
 /// - After login success, redirect can send the user to Home
 /// - If already logged in, Login is skipped
+///
+/// Main shell (beginner note):
+/// - [StatefulShellRoute.indexedStack] wraps Home / Cart / Profile
+/// - Bottom navigation stays visible on those three tabs
+/// - Each tab keeps its own state when you switch away and back
 final goRouterProvider = Provider<GoRouter>((ref) {
   final refresh = _AuthRefreshListenable(ref);
   ref.onDispose(refresh.dispose);
 
   return GoRouter(
-    // App always starts on Splash → session check → Home or Login.
+    // App always starts on Splash → session check → Home shell or Login.
     initialLocation: AppRoutes.splash,
     refreshListenable: refresh,
     redirect: (context, state) {
@@ -64,7 +73,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       final onLogin = location == AppRoutes.login;
 
       // Let Splash finish its animation + session check itself.
-      // (Splash uses context.go to Home or Login when ready.)
       if (onSplash) return null;
 
       final authState = ref.read(authProvider);
@@ -81,7 +89,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         return AppRoutes.login;
       }
 
-      // Already logged in → skip Login.
+      // Already logged in → open the main shell on the Home tab.
       if (isLoggedIn && onLogin) {
         return AppRoutes.home;
       }
@@ -99,21 +107,54 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         name: 'login',
         builder: (context, state) => const LoginPage(),
       ),
-      GoRoute(
-        path: AppRoutes.home,
-        name: 'home',
-        builder: (context, state) => const HomePage(),
+
+      // ----------------------------------------------------------
+      // Main bottom navigation shell
+      // ----------------------------------------------------------
+      //
+      // indexedStack = keep all three tabs alive (preserves state).
+      // Each branch is one tab with its own back stack.
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) {
+          return MainShellPage(navigationShell: navigationShell);
+        },
+        branches: [
+          // Tab 0 — Home
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.home,
+                name: 'home',
+                builder: (context, state) => const HomePage(),
+              ),
+            ],
+          ),
+
+          // Tab 1 — Cart
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.cart,
+                name: 'cart',
+                builder: (context, state) => const CartPage(),
+              ),
+            ],
+          ),
+
+          // Tab 2 — Profile
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.profile,
+                name: 'profile',
+                builder: (context, state) => const ProfilePage(),
+              ),
+            ],
+          ),
+        ],
       ),
-      GoRoute(
-        path: AppRoutes.cart,
-        name: 'cart',
-        builder: (context, state) => const CartPage(),
-      ),
-      GoRoute(
-        path: AppRoutes.profile,
-        name: 'profile',
-        builder: (context, state) => const ProfilePage(),
-      ),
+
+      // Product details stays outside the shell (no bottom bar).
       GoRoute(
         path: AppRoutes.productDetails,
         name: 'productDetails',

@@ -24,7 +24,7 @@ import '../widgets/splash_logo.dart';
 /// 3. Navigate with `context.go(...)` so the user cannot press Back to Splash
 ///
 /// Navigation decision:
-/// - Logged in  → [AppRoutes.home]  (main shopping screen)
+/// - Logged in  → [AppRoutes.home]  (main shell, Home tab)
 /// - Logged out → [AppRoutes.login]
 class SplashPage extends ConsumerStatefulWidget {
   const SplashPage({super.key});

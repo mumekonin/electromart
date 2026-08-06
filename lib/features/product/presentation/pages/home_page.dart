@@ -42,15 +42,10 @@ class HomePage extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('ElectroMart'),
         actions: [
-          // Integration: open User Profile from Home.
-          IconButton(
-            tooltip: 'Profile',
-            onPressed: () => context.push(AppRoutes.profile),
-            icon: const Icon(Icons.person_outline_rounded),
-          ),
+          // Quick jump to Cart tab (bottom nav also has Cart).
           IconButton(
             tooltip: 'Cart',
-            onPressed: () => context.push(AppRoutes.cart),
+            onPressed: () => context.go(AppRoutes.cart),
             icon: Badge(
               isLabelVisible: cartTotalItems > 0,
               label: Text('$cartTotalItems'),

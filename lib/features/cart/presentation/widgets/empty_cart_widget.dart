@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/app_router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 
@@ -54,7 +55,8 @@ class EmptyCartWidget extends StatelessWidget {
             ),
             Gap(AppSpacing.xl),
             FilledButton.icon(
-              onPressed: () => context.go('/home'),
+              // Switch to the Home tab inside the main shell.
+              onPressed: () => context.go(AppRoutes.home),
               icon: const Icon(Icons.storefront_outlined),
               label: const Text('Browse products'),
             ),
