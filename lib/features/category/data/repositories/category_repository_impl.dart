@@ -1,4 +1,5 @@
 import '../../../../core/network/api_constants.dart';
+import '../../../product/data/local/local_electronics_catalog.dart';
 import '../../../product/data/mappers/product_mapper.dart';
 import '../../../product/domain/entities/product.dart';
 import '../../domain/electronics_catalog.dart';
@@ -10,7 +11,7 @@ import '../datasource/category_remote_data_source.dart';
 ///
 /// Why this class exists:
 /// - Exposes Laptops / TVs / AirPods / ... chips
-/// - Loads real Fake Store electronics products
+/// - Loads Fake Store electronics + local catalog products
 /// - Filters those products into a department with keywords
 class CategoryRepositoryImpl implements CategoryRepository {
   CategoryRepositoryImpl(this._remoteDataSource);
@@ -30,14 +31,20 @@ class CategoryRepositoryImpl implements CategoryRepository {
       return [];
     }
 
-    // Always load Fake Store electronics, then filter by department keywords.
+    // 1) Fake Store electronics
     final models = await _remoteDataSource.getProductsByCategory(
       ApiConstants.electronicsCategory,
     );
 
-    return models
-        .map(ProductMapper.toEntity)
-        .where(category.matchesProduct)
-        .toList();
+    final apiProducts = models.map(ProductMapper.toEntity);
+
+    // 2) Local electronics (laptops, phones, TVs, …)
+    final localProducts = LocalElectronicsCatalog.products;
+
+    // 3) Keep only products that match this department's keywords.
+    return [
+      ...apiProducts,
+      ...localProducts,
+    ].where(category.matchesProduct).toList();
   }
 }

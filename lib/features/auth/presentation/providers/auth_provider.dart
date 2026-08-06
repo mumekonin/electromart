@@ -55,6 +55,15 @@ class AuthNotifier extends AsyncNotifier<UserSession?> {
     });
   }
 
+  /// Clears the saved session and marks the user as logged out.
+  ///
+  /// Used by Profile Logout so GoRouter can redirect to Login
+  /// and the back button cannot return to protected screens.
+  Future<void> logout() async {
+    await ref.read(authRepositoryProvider).logout();
+    state = const AsyncData(null);
+  }
+
   /// Friendly error text for SnackBars / UI.
   static String errorMessage(Object error) {
     if (error is NetworkException) {

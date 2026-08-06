@@ -42,6 +42,12 @@ class HomePage extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('ElectroMart'),
         actions: [
+          // Integration: open User Profile from Home.
+          IconButton(
+            tooltip: 'Profile',
+            onPressed: () => context.push(AppRoutes.profile),
+            icon: const Icon(Icons.person_outline_rounded),
+          ),
           IconButton(
             tooltip: 'Cart',
             onPressed: () => context.push(AppRoutes.cart),

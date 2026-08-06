@@ -23,6 +23,19 @@ class ApiConstants {
   /// POST body: { "username": "...", "password": "..." }
   static const String login = '/auth/login';
 
+  // --- Users / Profile ---
+
+  /// Fake Store login only returns a JWT token — not the user id or profile.
+  /// So Profile must call GET /users/{id} separately.
+  ///
+  /// We always load user `1` as the demo profile (per project requirement).
+  /// The login username may differ from this user's username — that is a
+  /// Fake Store limitation, not an ElectroMart bug.
+  static const int demoProfileUserId = 1;
+
+  /// GET one user by id (used by the Profile feature).
+  static String userById(int id) => '/users/$id';
+
   // --- Products ---
 
   /// GET all products, or POST a product.

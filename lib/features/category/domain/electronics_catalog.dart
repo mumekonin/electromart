@@ -4,11 +4,12 @@ import 'entities/category.dart';
 ///
 /// Why this class exists:
 /// - Fake Store API does not provide AirPods / Laptop / TV categories
-/// - We still fetch real products from the API
+/// - We fetch Fake Store electronics + local catalog products
 /// - Then we group them into these electronics departments by keywords
 ///
 /// Tip for beginners:
-/// If a chip shows "No products", Fake Store simply has no matching item yet.
+/// Keywords match words in the product title / description
+/// (example: "laptop" → Laptops chip).
 class ElectronicsCatalog {
   ElectronicsCatalog._();
 
@@ -103,6 +104,9 @@ class ElectronicsCatalog {
         'xbox',
         'nintendo',
         'console',
+        'controller',
+        'mechanical keyboard',
+        'gaming mouse',
       ],
     ),
   ];

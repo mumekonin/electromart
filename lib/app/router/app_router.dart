@@ -8,6 +8,7 @@ import '../../features/auth/presentation/providers/auth_provider.dart';
 import '../../features/cart/presentation/pages/cart_page.dart';
 import '../../features/product/presentation/pages/home_page.dart';
 import '../../features/product/presentation/pages/product_details_page.dart';
+import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
 
 /// Route path constants.
@@ -23,6 +24,9 @@ class AppRoutes {
 
   /// Shopping cart page (opened from Home cart icon).
   static const String cart = '/cart';
+
+  /// User profile page (opened from Home profile icon).
+  static const String profile = '/profile';
 
   /// Path pattern used by GoRouter for product details.
   static const String productDetails = '/product/:id';
@@ -102,6 +106,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.cart,
         name: 'cart',
         builder: (context, state) => const CartPage(),
+      ),
+      GoRoute(
+        path: AppRoutes.profile,
+        name: 'profile',
+        builder: (context, state) => const ProfilePage(),
       ),
       GoRoute(
         path: AppRoutes.productDetails,
