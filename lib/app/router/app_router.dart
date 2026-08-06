@@ -55,6 +55,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
   ref.onDispose(refresh.dispose);
 
   return GoRouter(
+    // App always starts on Splash → session check → Home or Login.
     initialLocation: AppRoutes.splash,
     refreshListenable: refresh,
     redirect: (context, state) {
@@ -62,7 +63,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       final onSplash = location == AppRoutes.splash;
       final onLogin = location == AppRoutes.login;
 
-      // Splash decides the first navigation itself.
+      // Let Splash finish its animation + session check itself.
+      // (Splash uses context.go to Home or Login when ready.)
       if (onSplash) return null;
 
       final authState = ref.read(authProvider);
