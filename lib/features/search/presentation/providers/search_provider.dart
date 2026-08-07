@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../category/presentation/providers/category_provider.dart';
 import '../../../product/domain/entities/product.dart';
 import '../../../product/presentation/providers/product_provider.dart';
 
@@ -28,29 +29,38 @@ class SearchQueryNotifier extends Notifier<String> {
 final searchQueryProvider =
     NotifierProvider<SearchQueryNotifier, String>(SearchQueryNotifier.new);
 
-/// Products after category load + local title search.
+/// Products after in-memory category filter + local title search.
 ///
 /// Why local filtering?
 /// - Fake Store API has NO search endpoint
-/// - Calling the server on every keystroke would be slow and wasteful
-/// - [productProvider] already has the current category products in memory
+/// - Category chips should not re-fetch the network (keeps Home smooth)
+/// - [productProvider] already holds the full electronics list
 ///
 /// Flow:
-/// 1. [productProvider] loads products for the selected category
-/// 2. This provider filters those products by title (case-insensitive)
-/// 3. Empty query → returns the category list unchanged
+/// 1. [productProvider] loads all electronics once
+/// 2. Optional category chip filters by keywords
+/// 3. Optional search query filters by title
 final filteredProductsProvider = Provider<AsyncValue<List<Product>>>((ref) {
   final productsState = ref.watch(productProvider);
+  final selectedCategory = ref.watch(selectedCategoryProvider);
   final query = ref.watch(searchQueryProvider).trim().toLowerCase();
 
-  // Keep loading / error from product loading — search itself never fails.
+  // Keep loading / error from product loading — filters never fail.
   return productsState.whenData((products) {
-    if (query.isEmpty) {
-      return products;
+    var result = products;
+
+    // Department chip (null = All).
+    if (selectedCategory != null) {
+      result = result.where(selectedCategory.matchesProduct).toList();
     }
 
-    return products
-        .where((product) => product.title.toLowerCase().contains(query))
-        .toList();
+    // Title search.
+    if (query.isNotEmpty) {
+      result = result
+          .where((product) => product.title.toLowerCase().contains(query))
+          .toList();
+    }
+
+    return result;
   });
 });

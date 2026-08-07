@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/router/app_router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
-import '../../../../core/storage/storage_provider.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../widgets/splash_branding.dart';
 import '../widgets/splash_loading_indicator.dart';
 import '../widgets/splash_logo.dart';
@@ -15,17 +15,13 @@ import '../widgets/splash_logo.dart';
 ///
 /// Why a splash screen exists:
 /// - Gives the brand a short, polished first impression
-/// - Hides the short wait while we read the saved login session
+/// - Waits for [authProvider] to finish restoring the session
 /// - Decides the first real screen: Home (logged in) or Login
 ///
-/// Session check (simple version for beginners):
-/// 1. Wait briefly so the animation can play
-/// 2. Ask [sessionStorageProvider] if a token is saved
-/// 3. Navigate with `context.go(...)` so the user cannot press Back to Splash
-///
-/// Navigation decision:
-/// - Logged in  → [AppRoutes.home]  (main shell, Home tab)
-/// - Logged out → [AppRoutes.login]
+/// Session check:
+/// 1. Play the logo animation for a short time
+/// 2. Await [authProvider.future] (same source as GoRouter)
+/// 3. Navigate with `context.go(...)` so Back cannot return here
 class SplashPage extends ConsumerStatefulWidget {
   const SplashPage({super.key});
 
@@ -35,13 +31,8 @@ class SplashPage extends ConsumerStatefulWidget {
 
 class _SplashPageState extends ConsumerState<SplashPage>
     with SingleTickerProviderStateMixin {
-  /// Drives the fade + scale animations (Flutter built-in — no extra package).
   late final AnimationController _controller;
-
-  /// 0 → invisible, 1 → fully visible.
   late final Animation<double> _fadeAnimation;
-
-  /// Starts slightly small, then grows to normal size.
   late final Animation<double> _scaleAnimation;
 
   @override
@@ -65,26 +56,22 @@ class _SplashPageState extends ConsumerState<SplashPage>
       ),
     );
 
-    // Start the logo / text animation.
     _controller.forward();
-
-    // After branding + a short delay, check session and leave Splash.
     Future<void>.microtask(_openNextScreen);
   }
 
-  /// Reads the saved session, then navigates away from Splash.
+  /// Waits for session restore, then navigates away from Splash.
   Future<void> _openNextScreen() async {
-    // Keep Splash visible long enough to see the animation + brand.
     await Future<void>.delayed(const Duration(milliseconds: 1800));
     if (!mounted) return;
 
-    // Uses existing Authentication storage — no new login system here.
-    final isLoggedIn = ref.read(sessionStorageProvider).isLoggedIn();
-
+    // Same auth source as GoRouter — avoids a second SharedPreferences path.
+    final session = await ref.read(authProvider.future);
     if (!mounted) return;
 
+    final isLoggedIn = session?.isLoggedIn ?? false;
+
     if (isLoggedIn) {
-      // Main app entry for signed-in users (Home product listing).
       context.go(AppRoutes.home);
     } else {
       context.go(AppRoutes.login);
@@ -102,7 +89,6 @@ class _SplashPageState extends ConsumerState<SplashPage>
     return Scaffold(
       body: DecoratedBox(
         decoration: BoxDecoration(
-          // Soft electronics-store atmosphere (not a flat blank screen).
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,

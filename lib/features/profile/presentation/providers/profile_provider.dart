@@ -2,14 +2,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/network/api_constants.dart';
 import '../../../../core/network/dio_provider.dart';
-import '../../../../core/network/network_exception.dart';
-import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../../core/network/error_message.dart';
 import '../../data/datasource/profile_remote_data_source.dart';
 import '../../data/repositories/profile_repository_impl.dart';
 import '../../domain/entities/user_profile.dart';
 import '../../domain/repositories/profile_repository.dart';
 import '../../domain/usecases/get_user_profile_usecase.dart';
-import '../../domain/usecases/logout_usecase.dart';
 
 // ---------------------------------------------------------------------------
 // Dependency injection (Riverpod providers)
@@ -30,11 +28,6 @@ final getUserProfileUseCaseProvider = Provider<GetUserProfileUseCase>((ref) {
   return GetUserProfileUseCase(ref.watch(profileRepositoryProvider));
 });
 
-/// Logout reuses AuthRepository (clears SharedPreferences session).
-final logoutUseCaseProvider = Provider<LogoutUseCase>((ref) {
-  return LogoutUseCase(ref.watch(authRepositoryProvider));
-});
-
 // ---------------------------------------------------------------------------
 // Profile state (AsyncNotifier)
 // ---------------------------------------------------------------------------
@@ -43,7 +36,9 @@ final logoutUseCaseProvider = Provider<LogoutUseCase>((ref) {
 ///
 /// Why this class exists:
 /// - One provider for profile (loading / success / error)
-/// - UI calls [refresh] and [logout] — never Dio or SharedPreferences
+/// - UI calls [refresh] — never Dio directly
+///
+/// Logout lives on [authProvider] (single session owner).
 ///
 /// Important Fake Store detail:
 /// - Login only saves a token
@@ -67,24 +62,13 @@ class ProfileNotifier extends AsyncNotifier<UserProfile> {
     });
   }
 
-  /// Clears the session and syncs [authProvider] so GoRouter redirects
-  /// to Login and the back button cannot return to Profile.
-  Future<void> logout() async {
-    // 1) Clear token + login flag from SharedPreferences.
-    await ref.read(logoutUseCaseProvider)();
-
-    // 2) Sync in-memory auth state (GoRouter listens to authProvider).
-    //    We invalidate instead of calling AuthNotifier.logout() again,
-    //    so SharedPreferences is not cleared twice.
-    ref.invalidate(authProvider);
-  }
-
   /// Friendly error text for the Profile error UI.
   static String errorMessage(Object error) {
-    if (error is NetworkException) {
-      return error.message;
-    }
-    return 'Something went wrong while loading your profile. Please try again.';
+    return mapErrorMessage(
+      error,
+      fallback:
+          'Something went wrong while loading your profile. Please try again.',
+    );
   }
 }
 

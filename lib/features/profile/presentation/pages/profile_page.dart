@@ -6,6 +6,9 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/router/app_router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/widgets/custom_app_bar.dart';
+import '../../../../core/widgets/logout_confirm_dialog.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../domain/entities/user_profile.dart';
 import '../providers/profile_provider.dart';
 import '../widgets/profile_action_tile.dart';
@@ -21,7 +24,7 @@ import '../widgets/profile_loading_view.dart';
 /// - Avatar (initials), full name, username
 /// - Email, phone, address from Fake Store GET /users/1
 /// - Action tiles (most are UI-only placeholders)
-/// - Logout (clears session → Login)
+/// - Logout (clears session via [authProvider] → Login)
 ///
 /// Why login alone is not enough for this page:
 /// - `POST /auth/login` only returns a JWT token
@@ -35,8 +38,9 @@ class ProfilePage extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.backgroundOf(context),
-      appBar: AppBar(
-        title: const Text('Profile'),
+      appBar: const CustomAppBar(
+        title: 'Profile',
+        automaticallyImplyLeading: false,
       ),
       body: profileAsync.when(
         loading: () => const ProfileLoadingView(),
@@ -114,7 +118,7 @@ class _ProfileContent extends ConsumerWidget {
           ),
           Gap(AppSpacing.md),
 
-          // --- Real action: Logout ---
+          // --- Real action: Logout (owned by Auth, not Profile) ---
           ProfileActionTile(
             icon: Icons.logout_rounded,
             title: 'Logout',
@@ -141,34 +145,10 @@ class _ProfileContent extends ConsumerWidget {
 
   /// Asks for confirmation, then clears the session and goes to Login.
   Future<void> _confirmLogout(BuildContext context, WidgetRef ref) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text('Log out?'),
-          content: const Text(
-            'You will need to sign in again to continue shopping.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.of(dialogContext).pop(true),
-              style: FilledButton.styleFrom(
-                backgroundColor: AppColors.error,
-              ),
-              child: const Text('Logout'),
-            ),
-          ],
-        );
-      },
-    );
+    final confirmed = await showLogoutConfirmDialog(context);
+    if (!confirmed) return;
 
-    if (confirmed != true) return;
-
-    await ref.read(profileProvider.notifier).logout();
+    await ref.read(authProvider.notifier).logout();
 
     if (!context.mounted) return;
 

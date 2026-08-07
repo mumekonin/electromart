@@ -6,10 +6,6 @@ import '../../../../app/theme/app_spacing.dart';
 import '../providers/search_provider.dart';
 
 /// Rounded Material 3 search field for Home.
-///
-/// Why this widget exists:
-/// - Reusable search UI (icon, hint, clear button)
-/// - Talks to [searchQueryProvider] so typing updates results live
 class SearchBarWidget extends ConsumerStatefulWidget {
   const SearchBarWidget({super.key});
 
@@ -41,8 +37,6 @@ class _SearchBarWidgetState extends ConsumerState<SearchBarWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // If search is cleared from another widget (empty state button),
-    // keep the text field in sync.
     ref.listen<String>(searchQueryProvider, (previous, next) {
       if (next.isEmpty && _controller.text.isNotEmpty) {
         _controller.clear();
@@ -58,39 +52,57 @@ class _SearchBarWidgetState extends ConsumerState<SearchBarWidget> {
         AppSpacing.md,
         AppSpacing.sm,
       ),
-      child: TextField(
-        controller: _controller,
-        onChanged: (value) {
-          ref.read(searchQueryProvider.notifier).updateQuery(value);
-        },
-        textInputAction: TextInputAction.search,
-        decoration: InputDecoration(
-          hintText: 'Search electronics...',
-          prefixIcon: const Icon(Icons.search_rounded),
-          suffixIcon: hasText
-              ? IconButton(
-                  tooltip: 'Clear search',
-                  onPressed: _clear,
-                  icon: const Icon(Icons.close_rounded),
-                )
-              : null,
-          filled: true,
-          fillColor: AppColors.surfaceOf(context),
-          contentPadding: EdgeInsets.symmetric(
-            horizontal: AppSpacing.md,
-            vertical: AppSpacing.md,
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
-            borderSide: BorderSide(color: AppColors.borderOf(context)),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
-            borderSide: BorderSide(color: AppColors.borderOf(context)),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
-            borderSide: const BorderSide(color: AppColors.primary, width: 1.5),
+      child: Material(
+        color: AppColors.surfaceOf(context),
+        elevation: 0,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
+        child: TextField(
+          controller: _controller,
+          onChanged: (value) {
+            ref.read(searchQueryProvider.notifier).updateQuery(value);
+          },
+          textInputAction: TextInputAction.search,
+          style: Theme.of(context).textTheme.bodyMedium,
+          decoration: InputDecoration(
+            hintText: 'Search electronics…',
+            hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: AppColors.textSecondaryOf(context),
+                ),
+            prefixIcon: Icon(
+              Icons.search_rounded,
+              color: AppColors.primary,
+            ),
+            suffixIcon: hasText
+                ? IconButton(
+                    tooltip: 'Clear search',
+                    onPressed: _clear,
+                    icon: Icon(
+                      Icons.cancel_rounded,
+                      color: AppColors.textSecondaryOf(context),
+                    ),
+                  )
+                : null,
+            filled: true,
+            fillColor: AppColors.surfaceOf(context),
+            contentPadding: EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.md,
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
+              borderSide: BorderSide(color: AppColors.borderOf(context)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
+              borderSide: BorderSide(color: AppColors.borderOf(context)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
+              borderSide: const BorderSide(
+                color: AppColors.primary,
+                width: 1.5,
+              ),
+            ),
           ),
         ),
       ),

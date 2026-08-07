@@ -3,6 +3,7 @@ import 'package:gap/gap.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/widgets/custom_app_bar.dart';
 import '../widgets/about_header.dart';
 import '../widgets/info_section.dart';
 import '../widgets/technology_card.dart';
@@ -24,8 +25,8 @@ class AboutPage extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: AppColors.backgroundOf(context),
-      appBar: AppBar(
-        title: const Text('About ElectroMart'),
+      appBar: const CustomAppBar(
+        title: 'About ElectroMart',
       ),
       body: ListView(
         padding: EdgeInsets.all(AppSpacing.md),

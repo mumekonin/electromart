@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/widgets/custom_app_bar.dart';
+import '../../../../core/widgets/fade_scale_in.dart';
 import '../../../cart/domain/entities/cart_item.dart';
 import '../../../cart/presentation/providers/cart_provider.dart';
 import '../../domain/entities/product.dart';
@@ -73,12 +75,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
 
     return Scaffold(
       backgroundColor: AppColors.backgroundOf(context),
-      appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
-        ),
-        title: const Text('Product Details'),
+      appBar: CustomAppBar(
+        title: 'Product Details',
         actions: [
           IconButton(
             tooltip: _isFavorite ? 'Remove favorite' : 'Add favorite',
@@ -90,7 +88,9 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
             },
             icon: Icon(
               _isFavorite ? Icons.favorite : Icons.favorite_border,
-              color: _isFavorite ? AppColors.error : AppColors.textPrimaryOf(context),
+              color: _isFavorite
+                  ? AppColors.error
+                  : AppColors.textPrimaryOf(context),
             ),
           ),
         ],
@@ -111,7 +111,8 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
             },
           );
         },
-        data: (product) => _ProductDetailsBody(
+        data: (product) => FadeScaleIn(
+          child: _ProductDetailsBody(
           product: product,
           // Integration: Add To Cart on Product Details.
           // Saves a CartItem snapshot via cartProvider (persists to SharedPreferences).
@@ -155,6 +156,7 @@ class _ProductDetailsPageState extends ConsumerState<ProductDetailsPage> {
             }
           },
           onBuyNow: () => _showComingSoon('Checkout'),
+        ),
         ),
       ),
     );

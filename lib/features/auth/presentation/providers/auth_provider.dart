@@ -1,13 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/network/dio_provider.dart';
-import '../../../../core/network/network_exception.dart';
+import '../../../../core/network/error_message.dart';
 import '../../../../core/storage/storage_provider.dart';
 import '../../data/datasource/auth_remote_data_source.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/entities/user_session.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../domain/usecases/login_usecase.dart';
+import '../../domain/usecases/logout_usecase.dart';
 
 /// Provides the auth remote data source.
 final authRemoteDataSourceProvider = Provider<AuthRemoteDataSource>((ref) {
@@ -27,16 +28,20 @@ final loginUseCaseProvider = Provider<LoginUseCase>((ref) {
   return LoginUseCase(ref.watch(authRepositoryProvider));
 });
 
+/// Provides the logout use case.
+final logoutUseCaseProvider = Provider<LogoutUseCase>((ref) {
+  return LogoutUseCase(ref.watch(authRepositoryProvider));
+});
+
 /// Manages authentication state with Riverpod [AsyncNotifier].
 ///
 /// Why this class exists:
 /// - One provider for auth (loading / success / error)
 /// - Restores a saved session when the app starts
-/// - Exposes a simple [login] method for the UI
+/// - [logout] is the single entry point used by Profile and Settings
 class AuthNotifier extends AsyncNotifier<UserSession?> {
   @override
   Future<UserSession?> build() async {
-    // Try to restore a previous login from SharedPreferences.
     return ref.read(authRepositoryProvider).restoreSession();
   }
 
@@ -57,19 +62,15 @@ class AuthNotifier extends AsyncNotifier<UserSession?> {
 
   /// Clears the saved session and marks the user as logged out.
   ///
-  /// Used by Profile Logout so GoRouter can redirect to Login
-  /// and the back button cannot return to protected screens.
+  /// Call this from Profile / Settings after the confirm dialog.
   Future<void> logout() async {
-    await ref.read(authRepositoryProvider).logout();
+    await ref.read(logoutUseCaseProvider)();
     state = const AsyncData(null);
   }
 
   /// Friendly error text for SnackBars / UI.
   static String errorMessage(Object error) {
-    if (error is NetworkException) {
-      return error.message;
-    }
-    return 'Something went wrong. Please try again.';
+    return mapErrorMessage(error);
   }
 }
 

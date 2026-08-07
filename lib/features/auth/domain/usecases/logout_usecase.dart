@@ -1,10 +1,11 @@
-import '../../../auth/domain/repositories/auth_repository.dart';
+import '../repositories/auth_repository.dart';
 
 /// Clears the saved login session (logout).
 ///
-/// Why this lives in the Profile feature:
-/// - The Profile screen is where the user taps Logout
-/// - It reuses [AuthRepository] so we do not duplicate SharedPreferences code
+/// Why this use case exists:
+/// - Profile and Settings both need to log out
+/// - They call [AuthNotifier.logout], which uses this use case
+/// - Session clearing stays in the Auth feature (single owner)
 ///
 /// What it clears:
 /// - The JWT token

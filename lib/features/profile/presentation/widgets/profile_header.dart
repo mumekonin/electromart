@@ -6,11 +6,7 @@ import '../../../../app/theme/app_spacing.dart';
 import '../../domain/entities/user_profile.dart';
 import 'profile_avatar.dart';
 
-/// Top section of the Profile page: avatar + name + username.
-///
-/// Why a separate widget?
-/// - Keeps [ProfilePage] shorter and easier to read
-/// - One place to tweak the header look later
+/// Top section of the Profile page: soft banner + avatar + name.
 class ProfileHeader extends StatelessWidget {
   const ProfileHeader({
     required this.profile,
@@ -23,26 +19,47 @@ class ProfileHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
-    return Column(
-      children: [
-        ProfileAvatar(fullName: profile.fullName),
-        Gap(AppSpacing.md),
-        Text(
-          profile.fullName,
-          style: textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.w700,
-          ),
-          textAlign: TextAlign.center,
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.fromLTRB(
+        AppSpacing.md,
+        AppSpacing.lg,
+        AppSpacing.md,
+        AppSpacing.lg,
+      ),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColors.primarySoftOf(context),
+            AppColors.surfaceOf(context),
+          ],
         ),
-        Gap(AppSpacing.xs),
-        Text(
-          '@${profile.username}',
-          style: textTheme.bodyMedium?.copyWith(
-            color: AppColors.textSecondaryOf(context),
+        borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
+        border: Border.all(color: AppColors.borderOf(context)),
+      ),
+      child: Column(
+        children: [
+          ProfileAvatar(fullName: profile.fullName),
+          Gap(AppSpacing.md),
+          Text(
+            profile.fullName,
+            style: textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+            textAlign: TextAlign.center,
           ),
-          textAlign: TextAlign.center,
-        ),
-      ],
+          Gap(AppSpacing.xs),
+          Text(
+            '@${profile.username}',
+            style: textTheme.bodyMedium?.copyWith(
+              color: AppColors.textSecondaryOf(context),
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 }

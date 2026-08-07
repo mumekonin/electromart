@@ -78,7 +78,15 @@ class _InfoRow extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: 22, color: AppColors.primary),
+        Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: AppColors.primarySoftOf(context),
+            borderRadius: BorderRadius.circular(AppSpacing.radius),
+          ),
+          child: Icon(icon, size: 18, color: AppColors.primary),
+        ),
         Gap(AppSpacing.sm),
         Expanded(
           child: Column(
@@ -90,7 +98,7 @@ class _InfoRow extends StatelessWidget {
                   color: AppColors.textSecondaryOf(context),
                 ),
               ),
-              Gap(2),
+              Gap(AppSpacing.xs),
               Text(
                 value,
                 style: textTheme.bodyMedium,

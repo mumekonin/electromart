@@ -48,7 +48,7 @@ class QuantitySelector extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.backgroundOf(context),
+        color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(AppSpacing.radius),
         border: Border.all(color: AppColors.borderOf(context)),
       ),
@@ -60,13 +60,16 @@ class QuantitySelector extends StatelessWidget {
             onTap: canDecrease ? onDecrease : null,
             tooltip: 'Decrease quantity',
           ),
-          SizedBox(
-            width: 28.w,
+          Container(
+            width: 32.w,
+            alignment: Alignment.center,
+            padding: EdgeInsets.symmetric(vertical: AppSpacing.xs),
             child: Text(
               '$safeQuantity',
               textAlign: TextAlign.center,
               style: textTheme.labelLarge?.copyWith(
                 fontWeight: FontWeight.w700,
+                color: AppColors.primary,
               ),
             ),
           ),

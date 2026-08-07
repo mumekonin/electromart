@@ -54,6 +54,26 @@ final clearCartUseCaseProvider = Provider<ClearCartUseCase>((ref) {
 });
 
 // ---------------------------------------------------------------------------
+// Busy flag (prevents overlapping cart writes)
+// ---------------------------------------------------------------------------
+
+/// True while a cart save is running.
+///
+/// Cart tiles disable +/- while this is true so rapid taps cannot
+/// interleave load → modify → save and lose quantity updates.
+class CartBusyNotifier extends Notifier<bool> {
+  @override
+  bool build() => false;
+
+  void setBusy(bool value) {
+    state = value;
+  }
+}
+
+final cartBusyProvider =
+    NotifierProvider<CartBusyNotifier, bool>(CartBusyNotifier.new);
+
+// ---------------------------------------------------------------------------
 // Cart state (AsyncNotifier)
 // ---------------------------------------------------------------------------
 
@@ -62,8 +82,11 @@ final clearCartUseCaseProvider = Provider<ClearCartUseCase>((ref) {
 /// Why this class exists:
 /// - One provider for cart (loading / success / error)
 /// - UI calls methods like [addToCart] — never SharedPreferences
-/// - Repository already saves JSON after every change
+/// - Mutations run one after another (no overlapping writes)
 class CartNotifier extends AsyncNotifier<Cart> {
+  /// Chains cart writes so the second tap waits for the first to finish.
+  Future<void> _writeQueue = Future<void>.value();
+
   /// Loads the cart when [cartProvider] is first watched (app start).
   @override
   Future<Cart> build() {
@@ -79,8 +102,6 @@ class CartNotifier extends AsyncNotifier<Cart> {
   }
 
   /// Adds a product. Duplicates increase quantity on the same row.
-  ///
-  /// Does NOT flip the whole page to loading — keeps the list visible.
   Future<void> addToCart(CartItem item) async {
     await _updateCart(() {
       return ref.read(addToCartUseCaseProvider)(item);
@@ -117,25 +138,32 @@ class CartNotifier extends AsyncNotifier<Cart> {
 
   /// Runs a cart change and updates [state].
   ///
+  /// Writes are queued so two taps cannot corrupt SharedPreferences.
   /// On failure we keep the previous cart on screen when possible,
   /// then rethrow so the UI can show a friendly SnackBar.
-  Future<void> _updateCart(Future<Cart> Function() action) async {
-    // Remember the last good cart before we try to write.
+  Future<void> _updateCart(Future<Cart> Function() action) {
+    final run = _writeQueue.then((_) => _runCartWrite(action));
+    // Keep the chain alive even if one write fails.
+    _writeQueue = run.catchError((_) {});
+    return run;
+  }
+
+  Future<void> _runCartWrite(Future<Cart> Function() action) async {
     final previousCart = state.asData?.value;
+    ref.read(cartBusyProvider.notifier).setBusy(true);
 
     try {
       final cart = await action();
       state = AsyncData(cart);
     } catch (error, stackTrace) {
       if (previousCart != null) {
-        // Keep showing items — do not blank the page on a save error.
         state = AsyncData(previousCart);
       } else {
         state = AsyncError(error, stackTrace);
       }
-
-      // Let the caller (page / button) show a SnackBar.
       rethrow;
+    } finally {
+      ref.read(cartBusyProvider.notifier).setBusy(false);
     }
   }
 

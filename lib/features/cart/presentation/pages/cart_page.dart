@@ -4,9 +4,10 @@ import 'package:gap/gap.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/widgets/custom_app_bar.dart';
 import '../../domain/entities/cart.dart';
 import '../providers/cart_provider.dart';
-import '../widgets/cart_error_widget.dart';
+import '../widgets/cart_error_view.dart';
 import '../widgets/cart_item_tile.dart';
 import '../widgets/cart_loading_view.dart';
 import '../widgets/cart_summary.dart';
@@ -16,7 +17,7 @@ import '../widgets/empty_cart_widget.dart';
 ///
 /// States this page handles:
 /// 1. First load → [CartLoadingView] skeleton
-/// 2. Load failed → [CartErrorWidget] with retry
+/// 2. Load failed → [CartErrorView] with retry
 /// 3. Loaded + empty → [EmptyCartWidget]
 /// 4. Loaded + items → list + [CartSummary]
 ///
@@ -31,10 +32,10 @@ class CartPage extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: AppColors.backgroundOf(context),
-      appBar: AppBar(
-        title: const Text('Cart'),
+      appBar: CustomAppBar(
+        title: 'Cart',
+        automaticallyImplyLeading: false,
         actions: [
-          // Clear all — only useful when we have items.
           if (cartAsync.value?.isNotEmpty ?? false)
             TextButton(
               onPressed: () => _confirmClearCart(context, ref),
@@ -48,11 +49,10 @@ class CartPage extends ConsumerWidget {
         ],
       ),
       body: cartAsync.when(
-        // Keep showing the last good cart while a mutation reloads.
         skipLoadingOnReload: true,
         skipLoadingOnRefresh: true,
         loading: () => const CartLoadingView(),
-        error: (error, _) => CartErrorWidget(
+        error: (error, _) => CartErrorView(
           message: cartErrorMessage(error),
           onRetry: () => ref.read(cartProvider.notifier).loadCart(),
         ),
@@ -111,6 +111,7 @@ class _CartContent extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final notifier = ref.read(cartProvider.notifier);
+    final isBusy = ref.watch(cartBusyProvider);
 
     return Column(
       children: [
@@ -123,6 +124,7 @@ class _CartContent extends ConsumerWidget {
               final item = cart.items[index];
               return CartItemTile(
                 item: item,
+                isBusy: isBusy,
                 onIncrease: () => _runCartAction(
                   context,
                   () => notifier.increaseQuantity(item.productId),
@@ -139,17 +141,13 @@ class _CartContent extends ConsumerWidget {
             },
           ),
         ),
-        CartSummary(cart: cart),
+        CartSummary(cart: cart, isBusy: isBusy),
       ],
     );
   }
 }
 
 /// Runs a cart write and shows a friendly SnackBar on failure.
-///
-/// Why a shared helper?
-/// - Avoids repeating try/catch in every button
-/// - Keeps error wording consistent via [cartErrorMessage]
 Future<void> _runCartAction(
   BuildContext context,
   Future<void> Function() action,

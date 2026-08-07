@@ -1,8 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/network/dio_provider.dart';
-import '../../../../core/network/network_exception.dart';
-import '../../../category/presentation/providers/category_provider.dart';
+import '../../../../core/network/error_message.dart';
 import '../../data/datasource/product_remote_data_source.dart';
 import '../../data/repositories/product_repository_impl.dart';
 import '../../domain/entities/product.dart';
@@ -27,47 +26,31 @@ final getAllProductsUseCaseProvider = Provider<GetAllProductsUseCase>((ref) {
   return GetAllProductsUseCase(ref.watch(productRepositoryProvider));
 });
 
-/// Manages the product list with Riverpod [AsyncNotifier].
+/// Loads every electronics product once (API + local catalog).
 ///
-/// Why this class exists:
-/// - One provider for products (loading / success / error)
-/// - Watches [selectedCategoryProvider]
-/// - Reloads automatically when the user changes category chips
+/// Why we do NOT watch the selected category here:
+/// - Watching a category inside [build] reloads the whole list on every chip tap
+/// - That flashed a full-page spinner on Home
+/// - Category + search filtering stays in [filteredProductsProvider] (in memory)
 class ProductNotifier extends AsyncNotifier<List<Product>> {
   @override
   Future<List<Product>> build() {
-    // When the selected category changes, Riverpod re-runs build().
-    final selectedCategory = ref.watch(selectedCategoryProvider);
-    return _loadProducts(selectedCategory?.name);
+    return ref.read(getAllProductsUseCaseProvider)();
   }
 
-  /// Reloads products for the current category (or all products).
+  /// Reloads products from the API (pull-to-refresh / Retry).
   Future<void> refresh() async {
-    final selectedCategory = ref.read(selectedCategoryProvider);
     state = await AsyncValue.guard(() {
-      return _loadProducts(selectedCategory?.name);
-    });
-  }
-
-  /// "All" → get every product.
-  /// Named category → get products for that category only.
-  Future<List<Product>> _loadProducts(String? categoryName) {
-    if (categoryName == null) {
       return ref.read(getAllProductsUseCaseProvider)();
-    }
-
-    return ref.read(getProductsByCategoryUseCaseProvider)(categoryName);
+    });
   }
 
   /// Friendly error text for the UI.
   static String errorMessage(Object error) {
-    if (error is NetworkException) {
-      return error.message;
-    }
-    return 'Something went wrong. Please try again.';
+    return mapErrorMessage(error);
   }
 }
 
-/// Global products provider used by [HomePage].
+/// Global products provider used by Home (via [filteredProductsProvider]).
 final productProvider =
     AsyncNotifierProvider<ProductNotifier, List<Product>>(ProductNotifier.new);

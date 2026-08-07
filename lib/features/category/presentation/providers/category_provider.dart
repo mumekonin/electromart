@@ -1,13 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/network/dio_provider.dart';
-import '../../../../core/network/network_exception.dart';
+import '../../../../core/network/error_message.dart';
 import '../../data/datasource/category_remote_data_source.dart';
 import '../../data/repositories/category_repository_impl.dart';
 import '../../domain/entities/category.dart';
 import '../../domain/repositories/category_repository.dart';
 import '../../domain/usecases/get_categories_usecase.dart';
-import '../../domain/usecases/get_products_by_category_usecase.dart';
 
 /// Provides the category remote data source.
 final categoryRemoteDataSourceProvider =
@@ -25,17 +24,9 @@ final getCategoriesUseCaseProvider = Provider<GetCategoriesUseCase>((ref) {
   return GetCategoriesUseCase(ref.watch(categoryRepositoryProvider));
 });
 
-/// Provides the get-products-by-category use case.
-final getProductsByCategoryUseCaseProvider =
-    Provider<GetProductsByCategoryUseCase>((ref) {
-  return GetProductsByCategoryUseCase(ref.watch(categoryRepositoryProvider));
-});
-
 /// Loads ElectroMart electronics departments for the chip row.
 ///
-/// Why this class exists:
-/// - One provider for the category list only
-/// - Home watches this to build the chip row
+/// Departments come from a static catalog (not Fake Store clothing names).
 class CategoriesNotifier extends AsyncNotifier<List<Category>> {
   @override
   Future<List<Category>> build() {
@@ -51,10 +42,7 @@ class CategoriesNotifier extends AsyncNotifier<List<Category>> {
   }
 
   static String errorMessage(Object error) {
-    if (error is NetworkException) {
-      return error.message;
-    }
-    return 'Something went wrong. Please try again.';
+    return mapErrorMessage(error);
   }
 }
 
@@ -69,7 +57,7 @@ final categoriesProvider =
 /// Why this class exists:
 /// - Separate from "load categories" (one responsibility)
 /// - `null` means the user selected **All** electronics products
-/// - Product listing watches this and reloads automatically
+/// - [filteredProductsProvider] watches this and filters in memory
 class SelectedCategoryNotifier extends Notifier<Category?> {
   @override
   Category? build() => null;

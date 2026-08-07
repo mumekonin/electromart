@@ -20,14 +20,11 @@ class App extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(goRouterProvider);
-
-    // Light or dark — controlled by Settings → Dark Mode.
     final themeMode = ref.watch(themeModeProvider);
 
-    // Integration: cart restore
-    // Watching cartProvider here runs CartNotifier.build() as soon as
-    // the app starts, so saved cart JSON is loaded before Home opens.
-    ref.watch(cartProvider);
+    // Listen (do not watch) so cart restore runs without rebuilding [App]
+    // on every add / remove / quantity change.
+    ref.listen(cartProvider, (previous, next) {});
 
     return ScreenUtilInit(
       designSize: const Size(375, 812),

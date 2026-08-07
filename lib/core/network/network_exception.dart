@@ -58,7 +58,8 @@ class NetworkException implements Exception {
       case 400:
         return 'Bad request. Please check your input.';
       case 401:
-        return 'Wrong username or password.';
+        // Used by login (bad credentials) and by expired/invalid tokens.
+        return 'Unauthorized. Please check your credentials and try again.';
       case 403:
         return 'You do not have permission to do that.';
       case 404:

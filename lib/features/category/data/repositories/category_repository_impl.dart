@@ -1,6 +1,5 @@
 import '../../../../core/network/api_constants.dart';
-import '../../../product/data/local/local_electronics_catalog.dart';
-import '../../../product/data/mappers/product_mapper.dart';
+import '../../../product/data/local/electronics_product_merger.dart';
 import '../../../product/domain/entities/product.dart';
 import '../../domain/electronics_catalog.dart';
 import '../../domain/entities/category.dart';
@@ -11,7 +10,7 @@ import '../datasource/category_remote_data_source.dart';
 ///
 /// Why this class exists:
 /// - Exposes Laptops / TVs / AirPods / ... chips
-/// - Loads Fake Store electronics + local catalog products
+/// - Loads electronics (API + local catalog) via [ElectronicsProductMerger]
 /// - Filters those products into a department with keywords
 class CategoryRepositoryImpl implements CategoryRepository {
   CategoryRepositoryImpl(this._remoteDataSource);
@@ -31,20 +30,13 @@ class CategoryRepositoryImpl implements CategoryRepository {
       return [];
     }
 
-    // 1) Fake Store electronics
     final models = await _remoteDataSource.getProductsByCategory(
       ApiConstants.electronicsCategory,
     );
 
-    final apiProducts = models.map(ProductMapper.toEntity);
+    final allElectronics =
+        ElectronicsProductMerger.fromElectronicsModels(models);
 
-    // 2) Local electronics (laptops, phones, TVs, …)
-    final localProducts = LocalElectronicsCatalog.products;
-
-    // 3) Keep only products that match this department's keywords.
-    return [
-      ...apiProducts,
-      ...localProducts,
-    ].where(category.matchesProduct).toList();
+    return allElectronics.where(category.matchesProduct).toList();
   }
 }

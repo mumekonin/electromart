@@ -1,19 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 
-/// Reusable list tile for Profile actions.
-///
-/// Used for:
-/// - Personal Information (placeholder)
-/// - My Orders (placeholder)
-/// - Settings (placeholder)
-/// - Help (placeholder)
-/// - Logout (real action)
-///
-/// Only pass [onTap] when the action should do something.
-/// Placeholder tiles can omit [onTap] or show a "coming soon" SnackBar.
+/// Reusable list tile for Profile actions (Settings, Logout, …).
 class ProfileActionTile extends StatelessWidget {
   const ProfileActionTile({
     required this.icon,
@@ -28,14 +19,13 @@ class ProfileActionTile extends StatelessWidget {
   final String title;
   final String? subtitle;
   final VoidCallback onTap;
-
-  /// When true, uses the error color (Logout).
   final bool isDestructive;
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final color = isDestructive ? AppColors.error : AppColors.textPrimaryOf(context);
+    final color =
+        isDestructive ? AppColors.error : AppColors.textPrimaryOf(context);
     final iconColor = isDestructive ? AppColors.error : AppColors.primary;
 
     return Material(
@@ -55,8 +45,18 @@ class ProfileActionTile extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Icon(icon, color: iconColor, size: 22),
-              SizedBox(width: AppSpacing.md),
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: isDestructive
+                      ? AppColors.error.withValues(alpha: 0.08)
+                      : AppColors.primarySoftOf(context),
+                  borderRadius: BorderRadius.circular(AppSpacing.radius),
+                ),
+                child: Icon(icon, color: iconColor, size: 22),
+              ),
+              Gap(AppSpacing.md),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,7 +66,7 @@ class ProfileActionTile extends StatelessWidget {
                       style: textTheme.titleMedium?.copyWith(color: color),
                     ),
                     if (subtitle != null) ...[
-                      const SizedBox(height: 2),
+                      Gap(AppSpacing.xs),
                       Text(
                         subtitle!,
                         style: textTheme.bodySmall?.copyWith(

@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/app_router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../domain/entities/cart_item.dart';
@@ -63,13 +64,22 @@ class CartItemTile extends StatelessWidget {
         color: AppColors.surfaceOf(context),
         borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
         child: InkWell(
-          onTap: () => context.push('/product/${item.productId}'),
+          onTap: () =>
+              context.push(AppRoutes.productDetailsPath(item.productId)),
           borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
           child: Container(
             padding: EdgeInsets.all(AppSpacing.sm),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(AppSpacing.radiusLarge),
               border: Border.all(color: AppColors.borderOf(context)),
+              boxShadow: [
+                BoxShadow(
+                  color:
+                      AppColors.textPrimaryOf(context).withValues(alpha: 0.03),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -86,7 +96,7 @@ class CartItemTile extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: textTheme.titleSmall,
                       ),
-                      Gap(4.h),
+                      Gap(AppSpacing.xs),
                       Text(
                         '\$${item.price.toStringAsFixed(2)} each',
                         style: textTheme.bodySmall?.copyWith(
@@ -96,7 +106,6 @@ class CartItemTile extends StatelessWidget {
                       Gap(AppSpacing.sm),
                       Row(
                         children: [
-                          // Reusable quantity control (− / n / +).
                           QuantitySelector(
                             quantity: item.quantity,
                             enabled: !isBusy,

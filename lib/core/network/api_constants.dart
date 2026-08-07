@@ -41,9 +41,6 @@ class ApiConstants {
   /// GET all products, or POST a product.
   static const String products = '/products';
 
-  /// GET all category names.
-  static const String categories = '/products/categories';
-
   /// ElectroMart is an electronics store.
   ///
   /// Fake Store also returns clothing / jewelry — we ignore those

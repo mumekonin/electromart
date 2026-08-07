@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../../../app/router/app_router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/widgets/app_loading.dart';
+import '../../../../core/widgets/custom_app_bar.dart';
 import '../../../cart/presentation/providers/cart_provider.dart';
 import '../../../category/presentation/providers/category_provider.dart';
 import '../../../category/presentation/widgets/category_chip_bar.dart';
@@ -18,11 +20,6 @@ import '../widgets/products_empty_view.dart';
 import '../widgets/products_error_view.dart';
 
 /// Home screen: search + category chips + product grid.
-///
-/// Why this page exists:
-/// - Main shopping entry after login
-/// - Search filters products already loaded for the selected category
-/// - Watches loading / error from [productProvider] (not from search)
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
@@ -32,17 +29,14 @@ class HomePage extends ConsumerWidget {
     final searchQuery = ref.watch(searchQueryProvider);
     final selectedCategory = ref.watch(selectedCategoryProvider);
     final hasSearchQuery = searchQuery.trim().isNotEmpty;
-
-    // Integration: cart badge on Product Listing (Home).
-    // Shows how many units are in the cart; tap opens Cart page.
     final cartTotalItems = ref.watch(cartTotalItemsProvider);
 
     return Scaffold(
       backgroundColor: AppColors.backgroundOf(context),
-      appBar: AppBar(
-        title: const Text('ElectroMart'),
+      appBar: CustomAppBar(
+        title: 'ElectroMart',
+        automaticallyImplyLeading: false,
         actions: [
-          // Quick jump to Cart tab (bottom nav also has Cart).
           IconButton(
             tooltip: 'Cart',
             onPressed: () => context.go(AppRoutes.cart),
@@ -57,19 +51,12 @@ class HomePage extends ConsumerWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Local search (no API calls on each keystroke).
           const SearchBarWidget(),
-
-          // Electronics department chips.
           const CategoryChipBar(),
           Divider(height: 1, color: AppColors.borderOf(context)),
-
-          // Product grid / loading / error / empty.
           Expanded(
             child: productsState.when(
-              loading: () => const Center(
-                child: CircularProgressIndicator(),
-              ),
+              loading: () => const AppLoading(message: 'Loading products…'),
               error: (error, _) {
                 return ProductsErrorView(
                   message: ProductNotifier.errorMessage(error),
@@ -121,7 +108,9 @@ class _ProductsGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
+        // Small phones: 2 columns · tablets / wide: 3 columns.
         final crossAxisCount = constraints.maxWidth >= 600 ? 3 : 2;
+        final aspectRatio = constraints.maxWidth >= 600 ? 0.72 : 0.66;
 
         return RefreshIndicator(
           color: AppColors.primary,
@@ -133,11 +122,14 @@ class _ProductsGrid extends StatelessWidget {
               crossAxisCount: crossAxisCount,
               crossAxisSpacing: AppSpacing.md,
               mainAxisSpacing: AppSpacing.md,
-              childAspectRatio: 0.68,
+              childAspectRatio: aspectRatio,
             ),
             itemCount: products.length,
             itemBuilder: (context, index) {
-              return ProductCard(product: products[index]);
+              return ProductCard(
+                product: products[index],
+                animationIndex: index,
+              );
             },
           ),
         );

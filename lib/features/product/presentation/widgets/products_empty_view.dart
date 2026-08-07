@@ -1,15 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:gap/gap.dart';
 
-import '../../../../app/theme/app_colors.dart';
-import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/widgets/app_empty_state.dart';
 
-/// Shown when the products API returns an empty list.
-///
-/// Why this widget exists:
-/// - Keeps the empty UI out of [HomePage]
-/// - Gives the user a clear Refresh action
+/// Shown when a category / product list has no items.
 class ProductsEmptyView extends StatelessWidget {
   const ProductsEmptyView({
     super.key,
@@ -18,48 +11,19 @@ class ProductsEmptyView extends StatelessWidget {
   });
 
   final Future<void> Function() onRefresh;
-
-  /// Optional custom message (example: empty category filter).
   final String message;
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
-    return Center(
-      child: Padding(
-        padding: EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.inventory_2_outlined,
-              size: 64.sp,
-              color: AppColors.textSecondaryOf(context),
-            ),
-            Gap(AppSpacing.md),
-            Text(
-              'No Products',
-              style: textTheme.headlineSmall,
-              textAlign: TextAlign.center,
-            ),
-            Gap(AppSpacing.sm),
-            Text(
-              message,
-              style: textTheme.bodyMedium?.copyWith(
-                color: AppColors.textSecondaryOf(context),
-              ),
-              textAlign: TextAlign.center,
-            ),
-            Gap(AppSpacing.lg),
-            FilledButton.icon(
-              onPressed: onRefresh,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Refresh'),
-            ),
-          ],
-        ),
-      ),
+    return AppEmptyState(
+      icon: Icons.inventory_2_outlined,
+      title: 'No products',
+      description: message,
+      actionLabel: 'Refresh',
+      actionIcon: Icons.refresh_rounded,
+      onAction: () {
+        onRefresh();
+      },
     );
   }
 }

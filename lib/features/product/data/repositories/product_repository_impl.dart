@@ -3,6 +3,7 @@ import '../../../../core/network/network_exception.dart';
 import '../../domain/entities/product.dart';
 import '../../domain/repositories/product_repository.dart';
 import '../datasource/product_remote_data_source.dart';
+import '../local/electronics_product_merger.dart';
 import '../local/local_electronics_catalog.dart';
 import '../mappers/product_mapper.dart';
 
@@ -10,10 +11,8 @@ import '../mappers/product_mapper.dart';
 ///
 /// Why this class exists:
 /// - Implements the domain repository contract
-/// - Maps [ProductModel] (data) → [Product] (domain)
-/// - Keeps only electronics products for ElectroMart
+/// - Maps API models → domain [Product]
 /// - Merges Fake Store electronics with [LocalElectronicsCatalog]
-///   because the API alone only has 6 electronics items
 class ProductRepositoryImpl implements ProductRepository {
   ProductRepositoryImpl(this._remoteDataSource);
 
@@ -22,20 +21,7 @@ class ProductRepositoryImpl implements ProductRepository {
   @override
   Future<List<Product>> getAllProducts() async {
     final models = await _remoteDataSource.getAllProducts();
-
-    // Fake Store mixes clothing / jewelry — ElectroMart sells electronics only.
-    final apiElectronics = models
-        .where(
-          (model) => ApiConstants.isElectronicsCategory(model.category),
-        )
-        .map(ProductMapper.toEntity)
-        .toList();
-
-    // Append local electronics so Home feels like a real store.
-    return [
-      ...apiElectronics,
-      ...LocalElectronicsCatalog.products,
-    ];
+    return ElectronicsProductMerger.fromAllProducts(models);
   }
 
   @override

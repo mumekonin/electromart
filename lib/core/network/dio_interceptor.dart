@@ -33,10 +33,14 @@ class AppInterceptor extends Interceptor {
       );
     }
 
-    // Attach JWT from local session when available.
-    final token = _sessionStorage?.getToken();
-    if (token != null && token.isNotEmpty) {
-      options.headers['Authorization'] = 'Bearer $token';
+    // Attach JWT only when the user is fully logged in.
+    // (Token alone is not enough — is_logged_in must also be true.)
+    final session = _sessionStorage;
+    if (session != null && session.isLoggedIn()) {
+      final token = session.getToken();
+      if (token != null && token.isNotEmpty) {
+        options.headers['Authorization'] = 'Bearer $token';
+      }
     }
 
     handler.next(options);

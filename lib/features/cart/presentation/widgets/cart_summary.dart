@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../app/router/app_router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/widgets/primary_button.dart';
 import '../../domain/entities/cart.dart';
 
 /// Bottom panel: item count, subtotal, and a demo checkout button.
-///
-/// Checkout is not wired to a real payment API — it only shows a SnackBar.
 class CartSummary extends StatelessWidget {
   const CartSummary({
     required this.cart,
@@ -16,8 +17,6 @@ class CartSummary extends StatelessWidget {
   });
 
   final Cart cart;
-
-  /// Dims the checkout button while a cart write is in progress.
   final bool isBusy;
 
   @override
@@ -63,11 +62,12 @@ class CartSummary extends StatelessWidget {
                   '\$${cart.subtotal.toStringAsFixed(2)}',
                   style: textTheme.headlineSmall?.copyWith(
                     color: AppColors.primary,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
             ),
-            const Gap(4),
+            Gap(AppSpacing.xs),
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -78,23 +78,13 @@ class CartSummary extends StatelessWidget {
               ),
             ),
             Gap(AppSpacing.md),
-            SizedBox(
-              width: double.infinity,
-              child: FilledButton(
-                onPressed: isBusy || cart.isEmpty
-                    ? null
-                    : () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'Checkout is a demo — no payment is charged.',
-                            ),
-                            behavior: SnackBarBehavior.floating,
-                          ),
-                        );
-                      },
-                child: const Text('Checkout'),
-              ),
+            PrimaryButton(
+              label: 'Checkout',
+              icon: Icons.lock_outline_rounded,
+              isExpanded: true,
+              onPressed: isBusy || cart.isEmpty
+                  ? null
+                  : () => context.push(AppRoutes.checkout),
             ),
           ],
         ),

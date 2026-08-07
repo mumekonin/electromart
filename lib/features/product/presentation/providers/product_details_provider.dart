@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/network/error_message.dart';
 import '../../../../core/network/network_exception.dart';
 import '../../domain/entities/product.dart';
 import '../../domain/usecases/get_product_details_usecase.dart';
@@ -16,13 +17,13 @@ final getProductDetailsUseCaseProvider =
 /// Why this class exists:
 /// - Separate from the Home list provider (one responsibility)
 /// - Riverpod family = one provider instance per product id
-/// - Exposes loading / success / error through [AsyncValue]
+/// - [autoDispose] frees memory when the user leaves the details page
 ///
-/// In Riverpod 3, the family argument is passed into the constructor.
+/// Riverpod 3 family style: the product id is a constructor argument.
 class ProductDetailsNotifier extends AsyncNotifier<Product> {
   ProductDetailsNotifier(this.productId);
 
-  /// The Fake Store product id from GoRouter (`/product/:id`).
+  /// Product id from GoRouter (`/product/:id`).
   final int productId;
 
   @override
@@ -40,10 +41,7 @@ class ProductDetailsNotifier extends AsyncNotifier<Product> {
 
   /// Friendly error text for the UI.
   static String errorMessage(Object error) {
-    if (error is NetworkException) {
-      return error.message;
-    }
-    return 'Something went wrong. Please try again.';
+    return mapErrorMessage(error);
   }
 
   /// True when the API says the product does not exist.
@@ -53,5 +51,9 @@ class ProductDetailsNotifier extends AsyncNotifier<Product> {
 }
 
 /// Family provider: watch with `ref.watch(productDetailsProvider(productId))`.
-final productDetailsProvider = AsyncNotifierProvider.family<
-    ProductDetailsNotifier, Product, int>(ProductDetailsNotifier.new);
+///
+/// autoDispose = drop this provider when no widget listens anymore.
+final productDetailsProvider = AsyncNotifierProvider.autoDispose
+    .family<ProductDetailsNotifier, Product, int>(
+  ProductDetailsNotifier.new,
+);

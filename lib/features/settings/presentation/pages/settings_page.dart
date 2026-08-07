@@ -7,7 +7,9 @@ import '../../../../app/router/app_router.dart';
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
 import '../../../../app/theme/theme_mode_provider.dart';
-import '../../../profile/presentation/providers/profile_provider.dart';
+import '../../../../core/widgets/custom_app_bar.dart';
+import '../../../../core/widgets/logout_confirm_dialog.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
 import '../widgets/settings_section.dart';
 import '../widgets/settings_tile.dart';
 
@@ -39,9 +41,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
     return Scaffold(
       backgroundColor: AppColors.backgroundOf(context),
-      appBar: AppBar(
-        title: const Text('Settings'),
-      ),
+      appBar: const CustomAppBar(title: 'Settings'),
       body: ListView(
         padding: EdgeInsets.all(AppSpacing.md),
         children: [
@@ -111,35 +111,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     );
   }
 
+  /// Confirms, then logs out through Auth (same path as Profile).
   Future<void> _confirmLogout(BuildContext context) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text('Log out?'),
-          content: const Text(
-            'You will need to sign in again to continue shopping.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: const Text('Cancel'),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.of(dialogContext).pop(true),
-              style: FilledButton.styleFrom(
-                backgroundColor: AppColors.error,
-              ),
-              child: const Text('Logout'),
-            ),
-          ],
-        );
-      },
-    );
+    final confirmed = await showLogoutConfirmDialog(context);
+    if (!confirmed) return;
 
-    if (confirmed != true) return;
-
-    await ref.read(profileProvider.notifier).logout();
+    await ref.read(authProvider.notifier).logout();
 
     if (!context.mounted) return;
 

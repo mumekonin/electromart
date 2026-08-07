@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -11,6 +11,8 @@ import '../../features/product/presentation/pages/home_page.dart';
 import '../../features/product/presentation/pages/product_details_page.dart';
 import '../../features/profile/presentation/pages/profile_page.dart';
 import '../../features/about/presentation/pages/about_page.dart';
+import '../../features/checkout/presentation/pages/checkout_page.dart';
+import '../../features/checkout/presentation/pages/order_success_page.dart';
 import '../../features/settings/presentation/pages/settings_page.dart';
 import '../../features/splash/presentation/pages/splash_page.dart';
 
@@ -42,6 +44,12 @@ class AppRoutes {
 
   /// About page (opened from Settings).
   static const String about = '/about';
+
+  /// Checkout / simple payment page (opened from Cart).
+  static const String checkout = '/checkout';
+
+  /// Shown after a successful demo payment.
+  static const String orderSuccess = '/order-success';
 
   /// Builds a concrete details path for a product id.
   static String productDetailsPath(int id) => '/product/$id';
@@ -166,10 +174,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.productDetails,
         name: 'productDetails',
-        builder: (context, state) {
+        pageBuilder: (context, state) {
           final idParam = state.pathParameters['id'];
           final productId = int.tryParse(idParam ?? '') ?? 0;
-          return ProductDetailsPage(productId: productId);
+          return _fadeSlidePage(
+            state: state,
+            child: ProductDetailsPage(productId: productId),
+          );
         },
       ),
 
@@ -177,13 +188,76 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.settings,
         name: 'settings',
-        builder: (context, state) => const SettingsPage(),
+        pageBuilder: (context, state) {
+          return _fadeSlidePage(
+            state: state,
+            child: const SettingsPage(),
+          );
+        },
       ),
       GoRoute(
         path: AppRoutes.about,
         name: 'about',
-        builder: (context, state) => const AboutPage(),
+        pageBuilder: (context, state) {
+          return _fadeSlidePage(
+            state: state,
+            child: const AboutPage(),
+          );
+        },
+      ),
+
+      // Checkout + success (opened from Cart; no bottom bar).
+      GoRoute(
+        path: AppRoutes.checkout,
+        name: 'checkout',
+        pageBuilder: (context, state) {
+          return _fadeSlidePage(
+            state: state,
+            child: const CheckoutPage(),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.orderSuccess,
+        name: 'orderSuccess',
+        pageBuilder: (context, state) {
+          return _fadeSlidePage(
+            state: state,
+            child: const OrderSuccessPage(),
+          );
+        },
       ),
     ],
   );
 });
+
+/// Soft fade + slight slide for pushed screens (Details / Settings / About).
+///
+/// Uses Flutter built-in animations only — no extra packages.
+CustomTransitionPage<void> _fadeSlidePage({
+  required GoRouterState state,
+  required Widget child,
+}) {
+  return CustomTransitionPage<void>(
+    key: state.pageKey,
+    child: child,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      final fade = CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOut,
+      );
+      final slide = Tween<Offset>(
+        begin: const Offset(0.04, 0),
+        end: Offset.zero,
+      ).animate(fade);
+
+      return FadeTransition(
+        opacity: fade,
+        child: SlideTransition(
+          position: slide,
+          child: child,
+        ),
+      );
+    },
+  );
+}

@@ -3,12 +3,12 @@ import 'package:gap/gap.dart';
 
 import '../../../../app/theme/app_colors.dart';
 import '../../../../app/theme/app_spacing.dart';
+import '../../../../core/widgets/primary_button.dart';
 
 /// Bottom actions for Product Details.
 ///
-/// Why this widget exists:
-/// - Groups Add to Cart + Buy Now in one place
-/// - Both actions are UI-only for now (no cart/checkout yet)
+/// Add to Cart is the main shopping action (filled primary).
+/// Buy Now stays secondary (outlined) as a demo placeholder.
 class ActionButtons extends StatelessWidget {
   const ActionButtons({
     super.key,
@@ -35,14 +35,19 @@ class ActionButtons extends StatelessWidget {
           border: Border(
             top: BorderSide(color: AppColors.borderOf(context)),
           ),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.textPrimaryOf(context).withValues(alpha: 0.05),
+              blurRadius: 12,
+              offset: const Offset(0, -2),
+            ),
+          ],
         ),
         child: Row(
           children: [
             Expanded(
-              child: OutlinedButton.icon(
-                onPressed: onAddToCart,
-                icon: const Icon(Icons.shopping_cart_outlined),
-                label: const Text('Add to Cart'),
+              child: OutlinedButton(
+                onPressed: onBuyNow,
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.primary,
                   side: const BorderSide(color: AppColors.primary),
@@ -51,21 +56,17 @@ class ActionButtons extends StatelessWidget {
                     borderRadius: BorderRadius.circular(AppSpacing.radius),
                   ),
                 ),
+                child: const Text('Buy Now'),
               ),
             ),
             Gap(AppSpacing.sm),
             Expanded(
-              child: FilledButton(
-                onPressed: onBuyNow,
-                style: FilledButton.styleFrom(
-                  backgroundColor: AppColors.primary,
-                  foregroundColor: AppColors.textOnPrimary,
-                  minimumSize: const Size.fromHeight(52),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppSpacing.radius),
-                  ),
-                ),
-                child: const Text('Buy Now'),
+              flex: 2,
+              child: PrimaryButton(
+                label: 'Add to Cart',
+                icon: Icons.shopping_cart_rounded,
+                onPressed: onAddToCart,
+                isExpanded: true,
               ),
             ),
           ],
